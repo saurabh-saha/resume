@@ -125,6 +125,11 @@ app = FastAPI(title="Resume store", docs_url="/api/docs")
 
 @app.on_event("startup")
 def _startup() -> None:
+    # On a serverless host this runs on every cold start, and each check costs a
+    # round trip to a database that may itself be waking. The schema only ever
+    # needs it once — set SKIP_MIGRATIONS=1 after the first successful deploy.
+    if os.environ.get("SKIP_MIGRATIONS"):
+        return
     prepare_storage()
 
 

@@ -41,6 +41,13 @@ load_dotenv()
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 IS_PG = DATABASE_URL.startswith(("postgres://", "postgresql://"))
 
+# A serverless function is frozen between requests and replaced without notice,
+# so a client-side pool is worse than none: every warm instance holds its own
+# connections and Neon's limit goes first. Neon's -pooler endpoint is PgBouncer,
+# which already pools server-side — so there we open one connection per request
+# and let the pooler do the work. A long-lived process keeps the real pool.
+SERVERLESS = bool(os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"))
+
 SCHEMA_SQLITE = """
 CREATE TABLE IF NOT EXISTS profile (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -141,26 +148,37 @@ def _pg_pool():
             timeout=20,               # room for a Neon cold start
             max_idle=120,
             check=ConnectionPool.check_connection,
-            kwargs={
-                "row_factory": dict_row,
-                "connect_timeout": 15,
-                "keepalives": 1,
-                "keepalives_idle": 30,
-                "application_name": "resume-store",
-                # Neon's -pooler endpoint is PgBouncer in transaction mode,
-                # which cannot carry server-side prepared statements between
-                # transactions. Without this you get "prepared statement
-                # _pg3_N already exists" once a query has run a few times.
-                "prepare_threshold": None,
-            },
+            kwargs={"row_factory": dict_row, **PG_KWARGS},
             open=True,
         )
     return _pool
 
 
+PG_KWARGS = {
+    "connect_timeout": 15,
+    "keepalives": 1,
+    "keepalives_idle": 30,
+    "application_name": "resume-store",
+    # Neon's -pooler endpoint is PgBouncer in transaction mode, which cannot
+    # carry server-side prepared statements between transactions. Without this
+    # you get "prepared statement _pg3_N already exists" after a few calls.
+    "prepare_threshold": None,
+}
+
+
 @contextmanager
 def db():
-    if IS_PG:
+    if IS_PG and SERVERLESS:
+        import psycopg
+        from psycopg.rows import dict_row
+
+        con = psycopg.connect(DATABASE_URL, row_factory=dict_row, **PG_KWARGS)
+        try:
+            yield Cx(con, True)
+            con.commit()
+        finally:
+            con.close()
+    elif IS_PG:
         with _pg_pool().connection() as con:   # commits on clean exit
             yield Cx(con, True)
     else:
