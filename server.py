@@ -110,7 +110,22 @@ class LabelIn(BaseModel):
     label: str | None = Field(default=None, max_length=120)
 
 
+def prepare_storage() -> None:
+    """Create the schema and bring it up to date. Idempotent, and called from
+    both entry points — `python3 server.py` and a host running
+    `uvicorn server:app`, where __main__ never runs."""
+    init_db()
+    if not os.environ.get("SKIP_PROFILE_MIGRATION"):
+        migrate_to_profiles()
+    migrate_soft_delete()
+
+
 app = FastAPI(title="Resume store", docs_url="/api/docs")
+
+
+@app.on_event("startup")
+def _startup() -> None:
+    prepare_storage()
 
 
 # Contact details are the one part of the resume worth keeping out of a public
@@ -669,10 +684,10 @@ if __name__ == "__main__":
     if "--migrate-profiles" in sys.argv:
         migrate_to_profiles()
         sys.exit(0)
-    init_db()
-    if not os.environ.get("SKIP_PROFILE_MIGRATION"):
-        migrate_to_profiles()
-    migrate_soft_delete()
+    # A host supplies PORT and needs 0.0.0.0; locally both default to the old
+    # behaviour, so `python3 server.py` is unchanged.
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "8000"))
     info = backend()
-    print(f"Resume store  ·  {info['backend']} → {info['target']}  ·  http://127.0.0.1:8000")
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
+    print(f"Resume store  ·  {info['backend']} → {info['target']}  ·  http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, log_level="warning")
