@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "resume",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "/Users/saurabhsaha/Documents/projects/resume/server.py"
+      ],
+      "port": 8000
+    }
+  ]
+}

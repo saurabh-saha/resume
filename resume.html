@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saurabh Saha — Resume</title>
+<style>
+  :root{
+    --accent:#0f4c81;
+    --ink:#1a1a1a;
+    --muted:#555555;
+    --faint:#888888;
+    --rule:#d8d8d8;
+    --page-w:210mm;
+    --pad:16mm;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#f8f9fa;
+    font-family:Helvetica,Arial,"Helvetica Neue",sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- left sidebar ---------- */
+  #bar{
+    position:sticky;top:52px;align-self:flex-start;
+    width:280px;flex:none;
+    display:flex;flex-direction:column;
+    padding:20px;
+    background:#fff;color:#1a1a1a;
+    font:500 13px/1 'Segoe UI',Helvetica,Arial,sans-serif;
+    border-right:1px solid #e5e7eb;
+    overflow-y:auto;
+    max-height:calc(100vh - 52px);
+  }
+  #bar .grow{flex:1}
+  #bar button{
+    font:500 13px/1 inherit;color:#374151;background:#f3f4f6;
+    border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;cursor:pointer;
+    transition:all 0.2s;margin-bottom:8px;text-align:left;width:100%;
+  }
+  #bar button:hover{background:#e5e7eb;color:#1a1a1a;border-color:#d1d5db}
+  #bar button.primary{background:#4f46e5;color:#fff;border:none}
+  #bar button.primary:hover{background:#4338ca}
+  #bar .sep{height:1px;background:#e5e7eb;margin:12px 0}
+  #bar .grp{font:600 10px/1 'Segoe UI',Helvetica,Arial,sans-serif;color:#9ca3af;text-transform:uppercase;
+    letter-spacing:.6px;margin:16px 0 8px;padding:0 2px}
+  #bar .grp:first-child{margin-top:0}
+  #status{color:#6b7280;font-size:11px;padding:8px;background:#f3f4f6;border-radius:6px;text-align:center;margin-bottom:8px}
+  #status.dirty{color:#f59e0b;background:#fef3c7}
+  #bar button.primary.dirty{background:#f59e0b}
+  #bar button.primary.dirty:hover{background:#d97706}
+  #fit{
+    font-size:11px;color:#6b7280;white-space:nowrap;padding:8px;background:#f3f4f6;border-radius:6px;text-align:center;
+  }
+  #fit.over{color:#ef4444}
+  #fit.ok{color:#10b981}
+  #bar select{
+    font:500 13px/1 inherit;color:#374151;background:#f3f4f6;
+    border:1px solid #e5e7eb;border-radius:6px;padding:10px;cursor:pointer;width:100%;margin-bottom:8px;
+  }
+  #bar select:hover{background:#e5e7eb}
+
+  /* version history panel */
+  #warn{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    padding:10px 16px;background:#fef3c7;color:#92400e;border-bottom:1px solid #fcd34d;
+    font:500 12px/1.45 'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  #warn button{
+    font:600 11px/1 'Segoe UI',Helvetica,Arial,sans-serif;color:#92400e;background:#fde047;
+    border:none;border-radius:4px;padding:6px 10px;cursor:pointer;transition:all 0.2s;
+  }
+  #warn button:hover{background:#fcd34d}
+  @media print{#warn,#hpage{display:none !important}}
+  #bar select{
+    font:500 12px/1 inherit;color:#fff;background:#3b4754;
+    border:1px solid #55636f;border-radius:5px;padding:6px 8px;cursor:pointer;
+  }
+  #bar select:disabled{opacity:.45;cursor:default}
+
+  /* ---------- narrow screens ----------
+     The sheet stays a true 210mm and pans instead of scaling: measure() reads
+     real geometry off it to place the page guides, so shrinking it would make
+     the page count lie. What gives way is the chrome — the sidebar becomes a
+     drawer over the page rather than 280px of a 375px screen. */
+  /* ---------- version history, as its own page ---------- */
+  #hpage{
+    position:fixed;inset:0;z-index:150;background:#f8f9fa;display:none;
+    flex-direction:column;font-family:'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  body.history #hpage{display:flex}
+  .hp-bar{
+    display:flex;align-items:center;gap:12px;padding:12px 20px;height:52px;
+    background:#fff;border-bottom:1px solid #e5e7eb;flex:none;
+  }
+  .hp-bar strong{font-size:15px;color:#1a1a1a}
+  #hp-sub{font-size:13px;color:#9ca3af}
+  .hp-bar button{
+    font:500 13px/1 inherit;color:#374151;background:#f3f4f6;border:1px solid #e5e7eb;
+    border-radius:6px;padding:8px 12px;cursor:pointer;
+  }
+  .hp-bar button:hover{background:#e5e7eb}
+  .hp-body{display:flex;flex:1;min-height:0}
+  #hp-list{
+    width:320px;flex:none;overflow-y:auto;background:#fff;border-right:1px solid #e5e7eb;padding:12px;
+  }
+  .hp-row{
+    padding:12px 14px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;cursor:pointer;
+    background:#fff;transition:all .15s;
+  }
+  .hp-row:hover{border-color:#c7d2fe;background:#fafbff}
+  .hp-row.on{border-color:#4f46e5;background:#eef2ff}
+  .hp-row .t{font:600 13px/1.3 inherit;color:#1a1a1a}
+  .hp-row.auto .t{font-weight:500;color:#4b5563}
+  .hp-row .d{font-size:11px;color:#6b7280;margin-top:3px}
+  .hp-row .tag{
+    display:inline-block;font:600 9px/1 inherit;text-transform:uppercase;letter-spacing:.4px;
+    color:#4f46e5;background:#e0e7ff;padding:4px 6px;border-radius:3px;margin-top:6px;
+  }
+  .hp-preview{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+  #hp-meta{
+    display:flex;align-items:center;gap:10px;padding:12px 20px;background:#fff;
+    border-bottom:1px solid #e5e7eb;font-size:13px;color:#6b7280;flex:none;min-height:57px;
+  }
+  #hp-meta button{
+    font:600 12px/1 inherit;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid #d1d5db;
+    background:#fff;color:#374151;
+  }
+  #hp-meta button.go{background:#4f46e5;border-color:#4f46e5;color:#fff}
+  #hp-meta button.rm{color:#b91c1c;border-color:#e5c1c1}
+  #hp-sheet-wrap{flex:1;overflow:auto;padding:24px}
+  /* The preview is read-only and measure() never runs on it, so it is free to
+     scale to fit — unlike the editor's sheet, which must stay a true 210mm. */
+  #hp-sheet{
+    transform:scale(.8);transform-origin:top center;margin:0 auto;
+    box-shadow:0 2px 14px rgba(0,0,0,.18);pointer-events:none;
+  }
+  @media (max-width:900px){
+    .hp-body{flex-direction:column}
+    #hp-list{width:auto;max-height:38vh;border-right:none;border-bottom:1px solid #e5e7eb}
+    #hp-sheet{transform:scale(.42)}
+  }
+
+  #home-tabs{display:flex;gap:4px;margin:0 0 28px;border-bottom:1px solid #e5e7eb}
+  #home-tabs button{
+    background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;
+    padding:10px 14px;cursor:pointer;font:600 14px/1 'Segoe UI',Helvetica,Arial,sans-serif;color:#6b7280;
+  }
+  #home-tabs button:hover{color:#374151}
+  #home-tabs button.on{color:#4f46e5;border-bottom-color:#4f46e5}
+
+  #bar-toggle{display:none}
+  #scrim{display:none}
+  @media (max-width:900px){
+    #bar-toggle{display:block}
+    body.home #bar-toggle{display:none}
+    #bar{
+      position:fixed;top:52px;left:0;bottom:0;z-index:120;
+      width:min(280px,80vw);max-height:none;
+      transform:translateX(-101%);transition:transform .22s ease;
+      box-shadow:6px 0 24px rgba(0,0,0,.16);
+    }
+    body.nav-open #bar{transform:none}
+    body.nav-open #scrim{
+      display:block;position:fixed;top:52px;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,.35);z-index:119;
+    }
+    #topbar{padding:8px 12px !important}
+    #landing{padding:28px 18px !important}
+    #landing h1{font-size:30px !important}
+    #landing > div > p{font-size:15px !important;margin-bottom:24px !important}
+    #landing-profiles{grid-template-columns:1fr !important}
+    #doc{padding:14px 0 40px}
+    .new-card{min-height:120px !important}
+  }
+
+  /* ---------- page ---------- */
+  #doc{padding:22px 12px 60px;overflow-x:auto;flex:1;min-width:0}
+  .page{
+    width:var(--page-w);
+    min-height:297mm;
+    margin:0 auto 20px;
+    padding:var(--pad);
+    background:#fff;
+    box-shadow:0 2px 14px rgba(0,0,0,.18);
+    position:relative;
+  }
+
+  /* ---------- header ---------- */
+  h1{
+    font-size:20pt;font-weight:700;letter-spacing:.5px;
+    margin:0 0 2pt;line-height:1.05;
+  }
+  .tagline{font-size:10.5pt;font-weight:700;line-height:1.1;margin:0 0 3.5pt}
+  .contact{font-size:8.5pt;line-height:1.2;color:var(--muted);margin:0 0 5pt}
+  .rule-accent{border:0;border-top:1px solid var(--accent);margin:0 0 7pt}
+
+  /* ---------- sections ---------- */
+  .sec{margin:0 0 9pt;position:relative}
+  h2{
+    font-size:10.5pt;font-weight:700;color:var(--accent);
+    letter-spacing:.6px;line-height:1.15;margin:0 0 4pt;
+  }
+  p{font-size:9pt;line-height:1.27;margin:0 0 2pt}
+  ul{margin:0 0 2pt;padding:0 0 0 12pt;list-style:none}
+  li{
+    font-size:9pt;line-height:1.27;margin:0 0 1pt;position:relative;
+  }
+  li::before{
+    content:"•";position:absolute;left:-12pt;top:0;color:var(--ink);
+  }
+  b,strong{font-weight:700}
+  em,i{font-style:italic}
+
+  /* ---------- job blocks ---------- */
+  .job{margin:0 0 5pt;position:relative;page-break-inside:auto}
+  .job + .job{padding-top:7pt}
+  .job-head{display:flex;justify-content:space-between;align-items:baseline;gap:12pt}
+  .role{font-size:10pt;font-weight:700;line-height:1.2;margin:0;flex:1}
+  .date{font-size:10pt;font-weight:400;line-height:1.2;margin:0;white-space:nowrap;text-align:right}
+  .sub{font-size:8.5pt;font-style:italic;line-height:1.25;color:var(--muted);margin:1.5pt 0 3pt}
+  .lbl{font-size:8.5pt;font-weight:700;font-style:italic;line-height:1.25;color:var(--muted);margin:3pt 0 1pt}
+
+  /* ---------- skills grid ---------- */
+  .skills{display:grid;grid-template-columns:88pt 1fr;gap:2pt 8pt}
+  .sk-k{font-size:9pt;font-weight:700;margin:0}
+  .sk-v{font-size:9pt;line-height:1.27;margin:0}
+
+  /* ---------- editing chrome ---------- */
+  [contenteditable]{outline:none;border-radius:2px}
+  body.editing [contenteditable]:hover{box-shadow:0 0 0 1px #cfe0ee}
+  body.editing [contenteditable]:focus{box-shadow:0 0 0 1px var(--accent);background:#f7fbff}
+  /* Controls live INSIDE the sheet's right margin (the page is 210mm wide and
+     the margin is 16mm, so they are never pushed into horizontal-scroll space
+     on a narrow window). Always present, dimmed until you approach them. */
+  .ctl{
+    position:absolute;right:-48px;top:0;
+    display:grid;grid-template-columns:20px 20px;gap:3px;
+    opacity:.18;transition:opacity .12s ease;
+  }
+  body.editing .job:hover > .ctl,
+  body.editing .sec:hover > .ctl,
+  body.editing .ctl:hover{opacity:1}
+  .ctl button{
+    width:20px;height:20px;line-height:1;padding:0;cursor:pointer;
+    border:1px solid #c9d2da;background:#fff;color:#67757f;border-radius:4px;
+    font-size:12px;
+  }
+  .ctl button.rm:hover{background:#fde8e8;border-color:#e59b9b;color:#b23b3b}
+  .ctl button.up:hover,.ctl button.dn:hover,.ctl button.add:hover{
+    background:#e8f1fb;border-color:#9bbfe5;color:#2b6cb0}
+  .adder{margin:6pt 0 0}
+  .adder button{
+    font:500 10px/1 Helvetica,Arial,sans-serif;color:#5b6b78;background:#f2f5f8;
+    border:1px dashed #c2ccd4;border-radius:4px;padding:5px 9px;cursor:pointer;
+  }
+  .adder button:hover{background:#e8eef4;color:#2b6cb0}
+  body:not(.editing) .ctl,body:not(.editing) .adder{display:none !important}
+
+  .pbreak{
+    height:0;border-top:2px dashed #7f8c99;margin:14px 0;position:relative;
+  }
+  body:not(.editing) .pbreak{border-top-color:transparent}
+
+  /* Centred on the line, clear of the role controls in the right margin —
+     those sit at the same x and only 14px away, so the two clusters used to
+     overlap and the role's won (it paints later). */
+  .pb-bar{
+    position:absolute;left:50%;top:-12px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:4px;
+    background:#e9ecef;border:1px solid #c2ccd4;border-radius:4px;padding:3px 5px;
+    opacity:.75;transition:opacity .12s ease;z-index:3;
+  }
+  .pb-bar:hover{opacity:1}
+  .pb-bar span{
+    color:#5b6b78;font:600 10px/1 Helvetica,Arial,sans-serif;padding:0 3px;white-space:nowrap;
+  }
+  .pb-bar button{
+    width:18px;height:18px;line-height:1;padding:0;cursor:pointer;font-size:11px;
+    border:1px solid #c2ccd4;background:#fff;color:#67757f;border-radius:3px;
+  }
+  .pb-bar button.up:hover,.pb-bar button.dn:hover{background:#e8f1fb;border-color:#9bbfe5;color:#2b6cb0}
+  .pb-bar button.rm:hover{background:#fde8e8;border-color:#e59b9b;color:#b23b3b}
+  body:not(.editing) .pb-bar{display:none}
+
+  /* where the paper actually ends, recomputed as you type */
+  #guides{position:absolute;inset:0;pointer-events:none;z-index:2}
+  .guide{position:absolute;left:0;right:0;border-top:1px dashed #d08b8b}
+  .guide::after{
+    content:attr(data-label);position:absolute;right:0;top:-7px;
+    background:#fff;color:#c05a5a;font:600 9px/1 Helvetica,Arial,sans-serif;
+    padding:2px 5px;border:1px solid #e8c3c3;border-radius:3px;
+  }
+  body:not(.editing) #guides{display:none}
+
+  @media print{#guides{display:none}}
+
+  /* compact: one lever for squeezing a page out of the layout */
+  body.compact p,body.compact li,body.compact .sk-v{font-size:8.5pt;line-height:1.22}
+  body.compact .sk-k{font-size:8.5pt}
+  body.compact li{margin-bottom:.5pt}
+  body.compact .role,body.compact .date{font-size:9.5pt}
+  body.compact .sub,body.compact .lbl{font-size:8pt}
+  body.compact h1{font-size:18pt}
+  body.compact .tagline{font-size:10pt}
+  body.compact h2{font-size:10pt;margin-bottom:3pt}
+  body.compact .sec{margin-bottom:7pt}
+  body.compact .job{margin-bottom:4pt}
+  body.compact .job + .job{padding-top:5pt}
+
+  /* ---------- print ---------- */
+  /* page margins live on @page so every printed sheet gets them,
+     including the one after a forced break */
+  @page{size:A4;margin:16mm}
+  @media print{
+    body{background:#fff}
+    #bar,.ctl,.adder,#bar-toggle,#scrim{display:none !important}
+    #topbar,#landing,#ppanel{display:none !important}
+    /* The editor shell is flex, and a flex item does not fragment across
+       pages — leave it and everything past the first sheet is dumped onto
+       page 2. Unwind it to normal block flow for print. */
+    #shell,#main{display:block !important;min-height:0 !important}
+    #doc{padding:0}
+    .page{
+      width:auto;min-height:0;margin:0;padding:0;
+      box-shadow:none;
+    }
+    .page + .page{page-break-before:always}
+    .pbreak{height:0;border:0;margin:0;page-break-after:always}
+    .pbreak::after{display:none}
+    .job,.sec,li{page-break-inside:avoid}
+    h2{page-break-after:avoid}
+    [contenteditable]{box-shadow:none !important;background:none !important}
+  }
+</style>
+</head>
+<body class="editing">
+
+<div id="topbar" style="position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:#fff;border-bottom:1px solid #e5e7eb;height:52px">
+  <div style="display:flex;gap:8px;align-items:center">
+    <button id="bar-toggle" title="Tools" style="background:none;border:none;cursor:pointer;color:#374151;font-size:20px;padding:6px 4px;line-height:1">☰</button>
+    <button id="btn-home" title="All profiles" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:18px;padding:6px;line-height:1">🏠</button>
+    <div id="btn-logo" title="All profiles" style="font-size:18px;font-weight:700;color:#4f46e5;cursor:pointer">Resume Editor</div>
+  </div>
+</div>
+
+
+<div id="landing" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#f8f9fa;z-index:200;display:flex;flex-direction:column;padding:60px 40px;font-family:'Segoe UI',Helvetica,Arial,sans-serif;overflow-y:auto">
+  <div style="max-width:1200px;margin:0 auto;width:100%">
+    <h1 style="font-size:56px;font-weight:700;margin:0 0 8px;color:#1a1a1a;letter-spacing:-0.5px">Resume Editor</h1>
+    <p style="font-size:18px;margin:0 0 28px;color:#666">Select a profile to start editing your resume</p>
+    <div id="home-tabs">
+      <button data-tab="profiles" class="on">Profiles</button>
+      <button data-tab="activity">Activity</button>
+    </div>
+    <div id="tab-profiles">
+      <div id="landing-profiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px"></div>
+    </div>
+    <div id="tab-activity" hidden></div>
+  </div>
+</div>
+
+<div id="ppanel" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
+  <div style="position:relative;background:#fff;border-radius:12px;padding:24px;max-width:500px;max-height:80vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.15);font-family:'Segoe UI',Helvetica,Arial,sans-serif">
+    <h2 id="pp-title" style="margin:0 0 20px;font-size:24px;font-weight:700;color:#1a1a1a">New profile</h2>
+    <div>
+      <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Profile Name</label>
+      <input id="new-profile-name" type="text" placeholder="e.g., Full Stack Engineer" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:16px;font-family:inherit;font-size:14px;box-sizing:border-box">
+      <label style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Description</label>
+      <textarea id="new-profile-desc" placeholder="e.g., Resume for full stack positions" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:16px;font-family:inherit;font-size:14px;height:60px;box-sizing:border-box;resize:vertical"></textarea>
+      <label id="seed-label" style="display:block;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">Start from</label>
+      <select id="new-profile-seed" style="width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;margin-bottom:16px;font-family:inherit;font-size:14px;box-sizing:border-box;background:#fff"></select>
+      <button id="btn-create-profile" style="width:100%;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s">Create Profile</button>
+    </div>
+    <button id="pp-close" style="position:absolute;top:12px;right:12px;background:#f3f4f6;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:18px;color:#6b7280;transition:all 0.2s" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">✕</button>
+  </div>
+</div>
+
+<div id="hpage">
+  <div class="hp-bar">
+    <button id="hp-back" title="Back to the resume">← Resume</button>
+    <strong>Version history</strong>
+    <span id="hp-sub"></span>
+    <span style="flex:1"></span>
+    <button id="hp-name">Save current as a named version</button>
+  </div>
+  <div class="hp-body">
+    <div id="hp-list"></div>
+    <div class="hp-preview">
+      <div id="hp-meta"></div>
+      <div id="hp-sheet-wrap"><div id="hp-sheet" class="page"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="scrim"></div>
+<div id="shell" style="display:flex;flex:1;min-height:0">
+<div id="bar">
+  <div class="grp">Versions</div>
+  <span id="status" title="When this resume last reached the store"></span>
+  <button id="btn-history" title="Version history &#10;&#10;Opens a page listing every saved snapshot with its date and size. Each one previews in full before you restore it, so you can see what would replace your resume.">History</button>
+  <button class="primary" id="btn-save" title="Save to the database  (⌘S) &#10;&#10;Writes this resume to Postgres and cuts a version you can return to later. This is the permanent copy: it survives a refresh, a new browser, and this machine. &#10;&#10;Until you press Save your edits are a draft held in this browser only.">Save</button>
+  <button id="btn-discard" title="Throw away the browser draft &#10;&#10;Deletes the unsaved edits held in this browser and reloads the last copy saved to the database. What is already saved is untouched." hidden>Discard</button>
+
+  <div class="grp">Design</div>
+  <button id="btn-compact" title="Compact spacing &#10;&#10;Body text 9pt → 8.5pt, tighter line-height, smaller headings and gaps — usually enough to pull a stray page back. &#10;&#10;Screen and PDF stay identical, so what you see is what prints. Remembered between sessions.">Compact: off</button>
+  <span id="fit" title="Content height vs. printable page height"></span>
+
+  <span class="sep"></span>
+  <button id="btn-print" title="Download as PDF &#10;&#10;Opens the browser print dialog. Set Destination to “Save as PDF” — that is the only export here. &#10;&#10;Leave Margins on Default (the 16mm margins come from the stylesheet) and untick “Headers and footers”, or the date and URL are printed onto the page.">Download</button>
+  <button id="btn-edit" title="Editing on / off &#10;&#10;On: click any line to rewrite it, and the ↑ ↓ ✕ controls appear beside each block for reordering and deleting. &#10;&#10;Off: the page becomes read-only and the controls and page guides disappear — the state it prints in.">Editing: on</button>
+</div>
+<div id="main" style="flex:1;min-width:0;display:flex;flex-direction:column">
+<div id="doc">
+<div class="page">
+
+  <header class="sec" data-nodel>
+    <h1>SAURABH SAHA</h1>
+    <p class="tagline">SDE III · Team Lead — Multi-Agent AI Systems</p>
+    <p class="contact">{{CONTACT}}</p>
+    <hr class="rule-accent">
+  </header>
+
+  <section class="sec">
+    <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete section">✕</button></div>
+    <h2>CAREER SUMMARY</h2>
+    <p>Engineering leader with 12+ years across AI systems, platforms and consumer products.</p>
+    <ul>
+      <li><b>Hands-on full-stack engineer:</b> coding and web development across multiple platforms — Python, TypeScript/Node.js, FastAPI, Django, React</li>
+      <li><b>System architect:</b> cloud expertise scaling high-traffic and high-complexity B2B products — database architecture, caching strategies, 20M requests/day platforms</li>
+      <li><b>AI expert:</b> taken LLM agents from demo to production with reliable AI capabilities for the highly sensitive maritime industry — LangGraph, AWS Strands SDK, Bedrock</li>
+      <li><b>Team leadership:</b> end-to-end team ownership — hiring, mentoring and shipping with teams of 10+ as Engineering Manager</li>
+    </ul>
+    <p>Looking for full ownership of product and team.</p>
+  </section>
+
+  <section class="sec" id="experience">
+    <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete section">✕</button></div>
+    <h2>RELEVANT EXPERIENCE</h2>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">GeoServe, Bengaluru — SDE III / Team Lead</p>
+        <p class="date">May 2025 – Present</p>
+      </div>
+      <p class="sub">Multi-agent AI platform for maritime operations · Team of 3 engineers</p>
+      <p class="lbl">Roles &amp; Responsibilities</p>
+      <ul>
+        <li>Own 3 AI products (DocBuddy, DocParser, Digital Operator) through the full lifecycle — dev to prod release, feature-flag rollouts, hotfix and incident management</li>
+        <li><b>Stakeholder management:</b> PRD grooming with product/design, business feedback loops, client demos — DocParser directly enabled the SHINC product sale</li>
+        <li><b>Team leadership:</b> bandwidth planning, backlog prioritization, unblocking cross-team dependencies with data and platform teams</li>
+        <li><b>Tech leadership:</b> SOC2 compliance remediation, agent framework selection (LangGraph over Strands-TS for DAG-first orchestration), AWS Bedrock model strategy (Claude Opus with Kimi fallback)</li>
+      </ul>
+      <p class="lbl">Key Projects</p>
+      <ul>
+        <li><b>DocBuddy:</b> Hands-on full-stack — LangGraph ReAct agent (RAG + HTML tool), OCR vision fallback, prompt versioning with cache invalidation; led Phase 1 production release across 9 PRs</li>
+        <li><b>Digital Operator:</b> Multi-agent system on AWS Strands SDK consuming Kafka events; DB-configured agent nodes, run-state tracking, human-in-the-loop clarification UI</li>
+        <li><b>AI R&amp;D:</b> Model benchmarking on Bedrock, strikethrough detection pipeline (dual-layer PDF + pixel-based), OpenTelemetry observability for agents</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">GoKwik, Bengaluru — Engineering Manager</p>
+        <p class="date">Jun 2024 – Oct 2024</p>
+      </div>
+      <p class="sub">Seller Dashboard · 4K sellers / 100K daily traffic · Remote team of 10+</p>
+      <p class="lbl">Roles &amp; Responsibilities</p>
+      <ul>
+        <li>Owned Seller Dashboard release and incident management; triage of production slowness issues on Redshift</li>
+        <li><b>Stakeholder management:</b> seller-facing metrics reviews with product and business teams</li>
+        <li><b>Tech leadership:</b> instituted SonarQube quality gates; New Relic + Opsgenie + Slack alerting for critical-service downtime</li>
+      </ul>
+      <p class="lbl">Key Projects</p>
+      <ul>
+        <li><b>ClickHouse data-warehouse POC:</b> Hands-on system solutioning, architecture and key-metrics design to replace slow Redshift queries</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">Aerchain, Bengaluru — Team Lead (EM capacity)</p>
+        <p class="date">Feb 2023 – Apr 2024</p>
+      </div>
+      <p class="sub">AI procurement negotiation agents · Clients incl. WeWork, Spinny · 10+ full-stack engineers</p>
+      <p class="lbl">Roles &amp; Responsibilities</p>
+      <ul>
+        <li>Owned AI negotiation agents product through release cycles; backlog prioritization across product and integration workstreams</li>
+        <li><b>Stakeholder management:</b> client API integration reviews; authored third-party integration documentation</li>
+        <li><b>Tech leadership:</b> security vulnerability remediation; ChatGPT API integration architecture</li>
+      </ul>
+      <p class="lbl">Key Projects</p>
+      <ul>
+        <li><b>DIY module creator (project lead):</b> Led the team building a no-code module builder — template JSON registration backend with a React frontend rendering JSON-to-component, including formula support and data copy</li>
+        <li><b>Integration service:</b> Hands-on design and ownership — ingestion of millions of queued requests with pipeline transformations</li>
+        <li><b>ML initiatives:</b> TF-IDF product-search POC for real-estate catalogues; GPT-based data-cleaning cron flow into DynamoDB</li>
+      </ul>
+    </div>
+
+    <div class="pbreak" contenteditable="false"></div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">MediBuddy, Bengaluru — Engineering Manager</p>
+        <p class="date">Sep 2022 – Jan 2023</p>
+      </div>
+      <p class="sub">Consults product (doctor + patient flows) · 10+ engineers, 2 tech leads</p>
+      <p class="lbl">Roles &amp; Responsibilities</p>
+      <ul>
+        <li>Owned Consults product; drove hiring and a major release with group PM</li>
+        <li><b>Tech leadership:</b> AWS cost optimization including Elasticsearch spend reduction; security vulnerability fixes</li>
+      </ul>
+      <p class="lbl">Key Projects</p>
+      <ul>
+        <li>Android UI revamp, doctor call-drop fixes, wallet upgrades (negative balance with Gold, corporate promos), push-notification marketing landings</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">Housing.com, Gurugram — Full Stack Engineer → Manager (Martech Architect)</p>
+        <p class="date">Sep 2018 – Sep 2022</p>
+      </div>
+      <p class="sub">Python/Django growth &amp; marketing platform · 20M requests/day</p>
+      <p class="lbl">Roles &amp; Responsibilities</p>
+      <ul>
+        <li>Owned growth platform through the dev-to-prod lifecycle at 20M requests/day</li>
+        <li><b>Tech leadership:</b> infrastructure migration (Hetzner → AWS); master–slave DB architecture and cron-based data-sync services</li>
+      </ul>
+      <p class="lbl">Key Projects</p>
+      <ul>
+        <li><b>Django growth platform (comms dashboard &amp; reco engine):</b> Django backend powering an Angular dashboard driving 10M daily outbound SMS/email — nightly reco logic matching each seller project to nearby projects, queued in DB and dispatched daily at 10am; also housed discovery &amp; remarketing pipelines with auto-generated ad creatives and sales pod automation (Power BI dashboards, Python crons, Jupyter test instance)</li>
+        <li><b>Go webhook service:</b> High-throughput Golang service ingesting 1M/day Facebook &amp; Google ads webhooks plus 1M inbound landing-page hits — SMS, email and lead events persisted to DB with stale-data auto-correction</li>
+        <li><b>Real-time bidder service:</b> Responded to millions of Google Ads bid requests serving ad creatives, later repurposed for Facebook lead-gen campaigns</li>
+        <li><b>DB sync service:</b> Incremental syncs on tiered schedules (5-min / 12-hour / daily) driven by updated-at timestamps</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">Via.com, Bengaluru — SDE 2</p>
+        <p class="date">Sep 2016 – Aug 2018</p>
+      </div>
+      <ul>
+        <li>Built BigQuery data warehouse with daily Luigi ETL powering seller analytics (RBAC admin platform, charts/tables); managed 2 engineers</li>
+        <li>Built Spring Boot service with Google OAuth integration and cron-driven pipelines ingesting data into BigQuery</li>
+        <li>Added Redis caching layer serving cached BigQuery query responses, with a jQuery UI for sellers to view aggregated data</li>
+        <li>Generated 40K interconnected SEO pages daily with live last-24-hour data; Paytm payment-method APIs and Firestore-backed sales pages</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">Goldman Sachs, Bengaluru — Product Analyst</p>
+        <p class="date">Apr 2015 – Apr 2016</p>
+      </div>
+      <ul>
+        <li>Built document-storage microservice for Equities contracts with versioning; CI/CD via WiX XML for .NET services in a 2-member pod</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete role">✕</button></div>
+      <div class="job-head">
+        <p class="role">Kony, Inc. — SDE 1</p>
+        <p class="date">Jun 2013 – Apr 2015</p>
+      </div>
+      <ul>
+        <li>Built no-code mobile app builder: Java plugin architecture with JSON-defined drag-and-drop components compiled to a Java desktop app; Jenkins test automation</li>
+      </ul>
+    </div>
+
+    <p class="adder" contenteditable="false"><button data-add="job">+ Add role</button></p>
+  </section>
+
+  <section class="sec">
+    <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete section">✕</button></div>
+    <h2>TECHNICAL SKILLS</h2>
+    <div class="skills">
+      <p class="sk-k">Languages</p>
+      <p class="sk-v">Python, JavaScript/TypeScript, Java, SQL</p>
+      <p class="sk-k">AI / Agents</p>
+      <p class="sk-v">AWS Strands Agents SDK, LangGraph, LangChain, AWS Bedrock, RAG, OCR pipelines, Claude / GPT / Gemini APIs, Langfuse, MCP</p>
+      <p class="sk-k">Backend</p>
+      <p class="sk-v">FastAPI, Django, Node.js, Kafka, microservices, REST APIs</p>
+      <p class="sk-k">Data Stores</p>
+      <p class="sk-v">MySQL, DynamoDB, Redshift, ClickHouse, BigQuery, Firebase/Firestore</p>
+      <p class="sk-k">Infra / Tooling</p>
+      <p class="sk-v">AWS, Jenkins, SonarQube, New Relic, Opsgenie, Luigi ETL, Power BI</p>
+    </div>
+    <p class="adder" contenteditable="false"><button data-add="skill">+ Add skill row</button></p>
+  </section>
+
+  <section class="sec">
+    <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete section">✕</button></div>
+    <h2>EDUCATION</h2>
+    <p>Bachelor of Engineering — Birla Institute of Technology and Science (BITS), Pilani · 2009 – 2013</p>
+  </section>
+
+  <section class="sec">
+    <div class="ctl"><button class="up" title="Move up">↑</button><button class="dn" title="Move down">↓</button><button class="rm" title="Delete section">✕</button></div>
+    <h2>CERTIFICATIONS</h2>
+    <p>Agentic AI — Eduteka · 6-week course · Jun 2025 · LangGraph, LangChain, LlamaIndex</p>
+  </section>
+
+  <p class="adder" contenteditable="false" id="add-section"><button data-add="section">+ Add section</button><button data-add="pbreak">+ Add page break</button></p>
+
+</div>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+  const doc      = document.getElementById('doc');
+  const page     = doc.querySelector('.page');
+  const status   = document.getElementById('status');
+  let backendName = '';        // 'neon' / 'sqlite' / 'browser only' — named in prompts
+  const saveBtn  = document.getElementById('btn-save');
+  const discardBtn = document.getElementById('btn-discard');
+  const ppanel   = document.getElementById('ppanel');
+  const ppClose  = document.getElementById('pp-close');
+  const btnCreateProfile = document.getElementById('btn-create-profile');
+  const newProfileName = document.getElementById('new-profile-name');
+  const newProfileDesc = document.getElementById('new-profile-desc');
+  const newProfileSeed = document.getElementById('new-profile-seed');
+  const pristine = page.innerHTML;          // the resume as shipped in this file
+
+  const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+  const EDITABLE = 'h1,h2,p:not(.adder),ul,.sk-k,.sk-v';
+
+  /* ===================================================================== *
+   * Storage
+   * Two interchangeable backends. ServerStore talks to server.py (SQLite,
+   * real version rows). LocalStore keeps the same shape in this browser so
+   * the file still works when opened straight off disk with no server.
+   * ===================================================================== */
+
+  const api = async (method, path, body) => {
+    const res = await fetch(path, {
+      method,
+      headers: body ? {'Content-Type':'application/json'} : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if(!res.ok) throw new Error(method + ' ' + path + ' -> ' + res.status);
+    return res.status === 204 ? null : res.json();
+  };
+
+  const ServerStore = {
+    mode: 'server',
+    label: 'SQLite',
+    listProfiles:  ()            => api('GET',    '/api/profiles'),
+    createProfile: (b)           => api('POST',   '/api/profiles', b),
+    updateProfile: (id, b)       => api('PATCH',  '/api/profiles/' + id, b),
+    deleteProfile: (id)          => api('DELETE', '/api/profiles/' + id),
+    listDeletedProfiles: ()      => api('GET',    '/api/profiles/deleted'),
+    activity:      ()            => api('GET',    '/api/activity'),
+    undeleteDoc:   (id)          => api('POST',   '/api/documents/' + id + '/undelete'),
+    undeleteVersion:(vid)        => api('POST',   '/api/versions/' + vid + '/undelete'),
+    restoreProfile:(id)          => api('POST',   '/api/profiles/' + id + '/restore'),
+    listDocs:      (profileId)   => api('GET',    '/api/documents' + (profileId ? '?profile_id=' + profileId : '')),
+    createDoc:     (b)           => api('POST',   '/api/documents', b),
+    getDoc:        (id)          => api('GET',    '/api/documents/' + id),
+    saveDoc:       (id, html)    => api('PUT',    '/api/documents/' + id, {html}),
+    renameDoc:     (id, name)    => api('PATCH',  '/api/documents/' + id, {name}),
+    deleteDoc:     (id)          => api('DELETE', '/api/documents/' + id),
+    listVersions:  (id)          => api('GET',    '/api/documents/' + id + '/versions'),
+    createVersion: (id, label)   => api('POST',   '/api/documents/' + id + '/versions', {label}),
+    getVersion:    (vid)         => api('GET',    '/api/versions/' + vid),
+    labelVersion:  (vid, label)  => api('PATCH',  '/api/versions/' + vid, {label}),
+    deleteVersion: (vid)         => api('DELETE', '/api/versions/' + vid),
+    restore:       (id, vid)     => api('POST',   '/api/documents/' + id + '/restore/' + vid)
+  };
+
+  const LKEY = 'resume-store-v3';
+  const LocalStore = (() => {
+    const blank = {profiles:[], docs:[], versions:[], seq:1};
+    let db = blank;
+    const read = () => { try{ return JSON.parse(localStorage.getItem(LKEY)) || blank; }catch(e){ return blank; } };
+    const write = () => localStorage.setItem(LKEY, JSON.stringify(db));
+    const now = () => Math.floor(Date.now()/1000);
+    const cut = (id, html, label) => {
+      db.versions.push({id: db.seq++, document_id: id, html, label, created_at: now()});
+      if(label === null){
+        // Pruning hides old autosaves; it never drops them.
+        const autos = db.versions.filter(v => v.document_id === id && v.label === null && !v.deleted_at);
+        while(autos.length > 50) autos.shift().deleted_at = now();
+      }
+      write();
+    };
+    return {
+      mode: 'local',
+      label: 'this browser',
+      init(){
+        db = read();
+        // create default profiles if none exist
+        if(!db.profiles.length){
+          const t = now();
+          db.profiles.push({id: db.seq++, name: 'Primary', description: 'Main resume profile', created_at: t});
+          write();
+        }
+        // carry over anything saved by the earlier localStorage-only build
+        if(!db.docs.length){
+          const legacy = localStorage.getItem('resume-html-v1');
+          if(legacy){
+            const t = now();
+            const profileId = db.profiles[0].id;
+            db.docs.push({id: db.seq++, profile_id: profileId, name: 'Master', html: legacy, created_at: t, updated_at: t});
+            let hist = [];
+            try{ hist = JSON.parse(localStorage.getItem('resume-html-v1:history') || '[]'); }catch(e){}
+            hist.forEach(h => db.versions.push({
+              id: db.seq++, document_id: 1, html: h.html, label: null,
+              created_at: Math.floor(h.t/1000)
+            }));
+            write();
+          }
+        }
+      },
+      async listDocs(profileId){
+        let docs = db.docs.filter(d => !d.deleted_at);
+        if(profileId) docs = docs.filter(d => d.profile_id === profileId);
+        else{
+          const live = new Set(db.profiles.filter(p => !p.deleted_at).map(p => p.id));
+          docs = docs.filter(d => live.has(d.profile_id));
+        }
+        return docs.map(d => ({
+          ...d, html: undefined,
+          versions: db.versions.filter(v => v.document_id === d.id).length
+        })).sort((a,b) => b.updated_at - a.updated_at);
+      },
+      async createDoc(b){
+        const t = now();
+        const html = b.copy_of ? db.docs.find(d => d.id === b.copy_of).html : b.html;
+        let name = (b.name || 'Untitled').trim(), n = 2;
+        while(db.docs.some(d => d.profile_id === b.profile_id && d.name === name)) name = (b.name || 'Untitled').trim() + ' ' + n++;
+        const d = {id: db.seq++, profile_id: b.profile_id, name, html, created_at: t, updated_at: t};
+        db.docs.push(d); write();
+        cut(d.id, html, 'Created');
+        return {id: d.id, profile_id: b.profile_id, name};
+      },
+      async getDoc(id){ return db.docs.find(d => d.id === id); },
+      async saveDoc(id, html){
+        const d = db.docs.find(x => x.id === id);
+        if(!d) throw new Error('No such document in local storage');
+        if(d.html === html) return {saved:false};
+        d.html = html; d.updated_at = now(); write();
+        const last = db.versions.filter(v => v.document_id === id).pop();
+        if(!last || d.updated_at - last.created_at >= 180) cut(id, html, null);
+        return {saved:true};
+      },
+      async renameDoc(id, name){
+        const d = db.docs.find(x => x.id === id);
+        let n = name.trim(), i = 2;
+        while(db.docs.some(o => o.id !== id && o.name === n)) n = name.trim() + ' ' + i++;
+        d.name = n; d.updated_at = now(); write();
+        return {id, name:n};
+      },
+      async deleteDoc(id){
+        const d = db.docs.find(x => x.id === id);
+        if(!d) throw new Error('No such document');
+        if(db.docs.filter(x => x.profile_id === d.profile_id && !x.deleted_at).length <= 1)
+          throw new Error('That is the only document left in this profile');
+        d.deleted_at = now(); write();
+      },
+      async undeleteDoc(id){
+        const d = db.docs.find(x => x.id === id);
+        if(!d || !d.deleted_at) return {id, undeleted: false};
+        if(db.docs.some(o => o.id !== id && o.profile_id === d.profile_id && !o.deleted_at && o.name === d.name))
+          throw new Error('A document called "' + d.name + '" already exists here');
+        d.deleted_at = null; write();
+        return {id, undeleted: true};
+      },
+      async undeleteVersion(vid){
+        const v = db.versions.find(x => x.id === vid);
+        if(v){ v.deleted_at = null; write(); }
+        return {id: vid, undeleted: true};
+      },
+      async activity(){
+        const pname = id => (db.profiles.find(p => p.id === id) || {}).name || '?';
+        const dname = id => (db.docs.find(d => d.id === id) || {}).name || '?';
+        const out = [];
+        db.profiles.filter(p => p.deleted_at).forEach(p => out.push({
+          kind: 'profile', id: p.id, name: p.name, deleted_at: p.deleted_at,
+          detail: db.docs.filter(d => d.profile_id === p.id).length + ' resumes'}));
+        db.docs.filter(d => d.deleted_at).forEach(d => out.push({
+          kind: 'document', id: d.id, name: d.name, deleted_at: d.deleted_at,
+          detail: 'in ' + pname(d.profile_id)}));
+        db.versions.filter(v => v.deleted_at).forEach(v => out.push({
+          kind: 'version', id: v.id, name: v.label || 'Autosave', deleted_at: v.deleted_at,
+          detail: 'of ' + dname(v.document_id)}));
+        return out.sort((a, b) => b.deleted_at - a.deleted_at);
+      },
+      async listVersions(id){
+        return db.versions.filter(v => v.document_id === id && !v.deleted_at)
+          .map(v => ({id:v.id, label:v.label, created_at:v.created_at, bytes:v.html.length}))
+          .sort((a,b) => b.created_at - a.created_at || b.id - a.id);
+      },
+      async createVersion(id, label){
+        cut(id, db.docs.find(d => d.id === id).html, (label || 'Named version').trim());
+        return {};
+      },
+      async getVersion(vid){ return db.versions.find(v => v.id === vid); },
+      async labelVersion(vid, label){
+        db.versions.find(v => v.id === vid).label = (label || '').trim() || null; write();
+      },
+      async deleteVersion(vid){
+        const v = db.versions.find(x => x.id === vid);
+        if(v && !v.deleted_at){ v.deleted_at = now(); write(); }
+      },
+      async listProfiles(){
+        return db.profiles.filter(p => !p.deleted_at).map(p => ({...p, html: undefined}));
+      },
+      async createProfile(b){
+        const t = now();
+        let name = (b.name || 'Untitled').trim(), n = 2;
+        while(db.profiles.some(p => !p.deleted_at && p.name === name)) name = (b.name || 'Untitled').trim() + ' ' + n++;
+        const p = {id: db.seq++, name, description: b.description || '', created_at: t};
+        db.profiles.push(p);
+        write();
+        return {id: p.id, name, description: p.description, created_at: t};
+      },
+      async updateProfile(id, b){
+        const p = db.profiles.find(x => x.id === id);
+        if(!p) throw new Error('No such profile in local storage');
+        let name = (b.name || p.name).trim(), n = 2;
+        while(db.profiles.some(o => o.id !== id && o.name === name)) name = (b.name || p.name).trim() + ' ' + n++;
+        p.name = name;
+        p.description = b.description || '';
+        write();
+        return {id, name, description: p.description};
+      },
+      async deleteProfile(id){
+        // Soft, exactly as the server does it: the profile and everything under
+        // it stays, it just stops being listed.
+        if(db.profiles.filter(p => !p.deleted_at).length <= 1)
+          throw new Error('That is the only profile left');
+        const p = db.profiles.find(x => x.id === id);
+        if(p && !p.deleted_at){ p.deleted_at = now(); write(); }
+      },
+      async listDeletedProfiles(){
+        return db.profiles.filter(p => p.deleted_at)
+                          .sort((a, b) => b.deleted_at - a.deleted_at);
+      },
+      async restoreProfile(id){
+        const p = db.profiles.find(x => x.id === id);
+        if(!p || !p.deleted_at) return {id, restored: false};
+        if(db.profiles.some(o => o.id !== id && !o.deleted_at && o.name === p.name))
+          throw new Error('A profile called "' + p.name + '" already exists');
+        p.deleted_at = null; write();
+        return {id, restored: true};
+      },
+      async restore(id, vid){
+        const d = db.docs.find(x => x.id === id);
+        const v = db.versions.find(x => x.id === vid);
+        const stamp = new Date().toLocaleString(undefined,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        cut(id, d.html, 'Before restore · ' + stamp);
+        d.html = v.html; d.updated_at = now(); write();
+        return {html: v.html};
+      }
+    };
+  })();
+
+  let store = LocalStore;
+  let profileId = null;
+  let profiles = [];
+  let docId = null;
+  let docs  = [];
+
+  /* ===================================================================== *
+   * Editing surface
+   * ===================================================================== */
+
+  function applyEditable(){
+    page.querySelectorAll(EDITABLE).forEach(el => el.setAttribute('contenteditable', editing ? 'true' : 'false'));
+    page.querySelectorAll('.ctl,.adder,.pbreak').forEach(el => el.setAttribute('contenteditable','false'));
+    // a forced break is a movable block too, but it has nothing to add to
+    page.querySelectorAll('.pbreak').forEach(pb => {
+      if(pb.querySelector('.ctl')) return;
+      pb.insertAdjacentHTML('afterbegin',
+        '<div class="ctl ctl-min pb-bar" contenteditable="false">' +
+        '<button class="up" title="Move this break up one block">&uarr;</button>' +
+        '<span>page break</span>' +
+        '<button class="dn" title="Move this break down one block">&darr;</button>' +
+        '<button class="rm" title="Remove this break">&#10005;</button></div>');
+    });
+    page.querySelectorAll('.ctl:not(.ctl-min)').forEach(ctl => {
+      if(ctl.querySelector('.add')) return;
+      const b = document.createElement('button');
+      b.className = 'add'; b.title = 'Add bullet'; b.textContent = '+';
+      ctl.insertBefore(b, ctl.querySelector('.rm'));
+    });
+  }
+
+  // Deleting the bullets under "Roles & Responsibilities" / "Key Projects"
+  // used to leave the label and an empty list behind. Once focus moves away,
+  // anything with no text left in it goes, and a label leaves with its list.
+  const isBlank = el => !el.textContent.replace(/[ ​]/g,'').trim();
+
+  function tidy(){
+    let changed = false;
+    const drop = el => { el.remove(); changed = true; };
+
+    page.querySelectorAll('ul').forEach(ul => {
+      ul.querySelectorAll('li').forEach(li => { if(isBlank(li)) drop(li); });
+      if(!ul.querySelector('li')){
+        const prev = ul.previousElementSibling;
+        drop(ul);
+        if(prev && prev.classList.contains('lbl')) drop(prev);
+      }
+    });
+    page.querySelectorAll('.lbl').forEach(el => {
+      const next = el.nextElementSibling;
+      if(isBlank(el) || !next || !next.matches('ul')) drop(el);
+    });
+    page.querySelectorAll('.sub').forEach(el => { if(isBlank(el)) drop(el); });
+    page.querySelectorAll('.job > p, .sec > p, h2').forEach(el => {
+      if(el.classList.contains('adder') || el.tagName === 'H1') return;
+      if(isBlank(el)) drop(el);
+    });
+    page.querySelectorAll('.skills .sk-k').forEach(k => {
+      const v = k.nextElementSibling;
+      if(isBlank(k) && v && v.classList.contains('sk-v') && isBlank(v)){ drop(k); drop(v); }
+    });
+    page.querySelectorAll('.job').forEach(j => { if(isBlank(j)) drop(j); });
+
+    if(changed) touch();
+  }
+
+  /* ===================================================================== *
+   * Page fitting
+   *
+   * The browser only shows you where the paper ends once you open the print
+   * dialog. This walks the same blocks the print engine treats as unbreakable
+   * (jobs, list items, paragraphs) and draws a line wherever a sheet runs out,
+   * so a forced break can be placed with the boundary in view.
+   * ===================================================================== */
+
+  const PAGE_MM = 297, MARGIN_MM = 16;
+  const guides = document.createElement('div');
+  guides.id = 'guides';
+  page.appendChild(guides);
+
+
+  /** Everything the print engine will keep whole, in document order. */
+  function atoms(){
+    const out = [];
+    page.querySelectorAll('.sec').forEach(sec => {
+      for(const child of sec.children){
+        if(child.classList.contains('ctl') || child.classList.contains('adder')) continue;
+        if(child.tagName === 'UL') out.push(...child.children);
+        else out.push(child);                       // .job and .pbreak stay whole
+      }
+    });
+    return out;
+  }
+
+  function measure(){
+    const pr = page.getBoundingClientRect();
+    if(!pr.width) return;
+    const perMm  = pr.width / 210;
+    const padMm  = parseFloat(getComputedStyle(page).paddingTop) / perMm;
+    const usable = (PAGE_MM - 2 * padMm) * perMm;
+
+    let start = padMm * perMm, breaks = [], bottom = start;
+    for(const el of atoms()){
+      const r = el.getBoundingClientRect();
+      const top = r.top - pr.top;
+      bottom = r.bottom - pr.top;
+      if(el.classList.contains('pbreak')){
+        breaks.push({y: top, forced: true});
+        start = top;
+      } else if(bottom - start > usable){
+        breaks.push({y: top, forced: false});
+        start = top;
+      }
+    }
+
+    guides.innerHTML = breaks.map((b, i) =>
+      '<div class="guide" style="top:' + b.y.toFixed(1) + 'px" data-label="page ' +
+      (i + 2) + (b.forced ? ' · forced' : '') + '"></div>').join('');
+
+    // how much the last sheet has left, or how far past it we are
+    const used = (bottom - start) / perMm;
+    const cap  = usable / perMm;
+    const el = document.getElementById('fit');
+    const pages = breaks.length + 1;
+    if(used > cap){
+      el.textContent = 'Page count: ' + pages + ' · ' + Math.ceil(used - cap) + 'mm over';
+      el.className = 'over';
+    } else {
+      el.textContent = 'Page count: ' + pages;
+      el.className = 'ok';
+    }
+    el.title = 'How many A4 sheets this prints to, recalculated as you type.\n\n' +
+               'The last sheet holds ' + Math.round(used) + 'mm of the ' + Math.round(cap) +
+               'mm it can print, leaving ' + Math.max(0, Math.floor(cap - used)) + 'mm.\n\n' +
+               'Turns red when content runs past the last sheet — Compact, or a page ' +
+               'break, usually fixes it.';
+  }
+
+  let measureTimer;
+  const queueMeasure = () => { clearTimeout(measureTimer); measureTimer = setTimeout(measure, 250); };
+  window.addEventListener('resize', queueMeasure);
+
+  /* ===================================================================== *
+   * Drafts and saving
+   *
+   * Two tiers, because the database is remote:
+   *   draft  — every edit, debounced, into this browser. Instant, no network.
+   *   save   — an explicit push to the database, which is what cuts versions.
+   * A draft outlives a reload, so an unsaved document comes back as you left
+   * it and tells you it has not reached the database yet.
+   * ===================================================================== */
+
+  let flashTimer, draftTimer, saving = false, lastSavedAt = 0;   // epoch seconds
+  let serverHtml = '';          // what the database last confirmed
+  let draftOK = true;           // false when this browser blocks storage
+  const clock = d => d.toTimeString().slice(0,5);
+
+  /** How long ago, in the roundest useful unit. */
+  const ago = ts => {
+    const s = Math.max(0, Math.floor(Date.now() / 1000 - ts));
+    if(s < 90) return 'just now';
+    const m = Math.round(s / 60);
+    if(m < 60) return m + ' min ago';
+    const h = Math.round(m / 60);
+    if(h < 24) return h + (h === 1 ? ' hour ago' : ' hours ago');
+    const d = Math.round(h / 24);
+    return d + (d === 1 ? ' day ago' : ' days ago');
+  };
+
+  const draftKey = id => 'resume-draft:' + store.mode + ':' + id;
+
+  /* What actually counts as "the document".
+   *
+   * applyEditable() stamps contenteditable onto everything and injects a "+"
+   * button into every control cluster, and the Editing toggle rewrites those
+   * attributes again. None of that is content, so none of it may register as a
+   * change — comparing raw innerHTML marked the page dirty the moment it
+   * loaded. Both are re-created deterministically on load, so they are stripped
+   * here: what gets stored, drafted and compared is the resume alone. */
+  function contentOf(root){
+    const copy = root.cloneNode(true);
+    copy.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    copy.querySelectorAll('.ctl .add').forEach(el => el.remove());
+    copy.querySelectorAll('#guides, .pbreak .ctl').forEach(el => el.remove());
+    return copy.innerHTML;
+  }
+  const cleanHtml = html => {
+    const holder = document.createElement('div');
+    holder.innerHTML = html;
+    return contentOf(holder);
+  };
+
+  const isDirty = () => docId !== null && contentOf(page) !== serverHtml;
+
+  function readDraft(id){
+    try{ return JSON.parse(localStorage.getItem(draftKey(id)) || 'null'); }catch(e){ return null; }
+  }
+  function writeDraft(){
+    if(docId === null) return;
+    try{
+      localStorage.setItem(draftKey(docId), JSON.stringify({html: contentOf(page), t: Date.now()}));
+    }catch(e){ draftOK = false; }
+  }
+  function clearDraft(id){
+    try{ localStorage.removeItem(draftKey(id)); }catch(e){}
+  }
+
+  function paintState(){
+    const dirty = isDirty();
+    status.classList.toggle('dirty', dirty);
+    saveBtn.classList.toggle('dirty', dirty);
+    discardBtn.hidden = !dirty;
+    if(dirty){
+      status.textContent = draftOK ? '● Draft — not saved' : '● Unsaved';
+      status.title = draftOK
+        ? 'Draft — temporary, and in this browser only.\n\n' +
+          'Your edits are held in this browser. They survive a refresh, but not ' +
+          'clearing site data, and they exist nowhere else — no other browser, ' +
+          'device or person can see them.\n\n' +
+          'Press Save (⌘S) to write them to ' + (backendName || 'the database') + ' permanently.'
+        : 'Unsaved, and this browser is not keeping a draft — these edits are ' +
+          'held in the page alone and a refresh loses them. Press Save (⌘S) now.';
+    } else {
+      status.textContent = lastSavedAt ? 'Saved ' + ago(lastSavedAt) : '';
+      status.title = lastSavedAt
+        ? 'Saved — this is the permanent copy.\n\n' +
+          'Written to ' + (backendName || 'the store') + ' on ' +
+          new Date(lastSavedAt * 1000).toLocaleString() + '.\n\n' +
+          'It survives a refresh, another browser and this machine. Nothing is ' +
+          'currently unsaved.'
+        : '';
+    }
+  }
+
+  setInterval(() => { if(docId !== null && !isDirty()) paintState(); }, 60000);
+
+  function flash(msg){
+    status.textContent = msg;
+    status.title = '';
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(paintState, 2000);
+  }
+
+  /** An edit happened: keep a local draft, do not touch the network. */
+  function touch(){
+    queueMeasure();
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => {
+      writeDraft();
+      // a browser that refuses to hold a draft gets pushed to the database
+      // instead, so an edit is never held only in page memory
+      if(!draftOK) save(true);
+    }, 300);
+    paintState();
+  }
+
+  /** Push the draft to the database. This is what creates versions. */
+  async function save(quiet){
+    if(docId === null || saving) return false;
+    clearTimeout(draftTimer);
+    writeDraft();
+    if(!isDirty()){ if(!quiet) flash('No changes'); return true; }
+    const html = contentOf(page);
+    saving = true;
+    status.classList.remove('dirty');
+    status.textContent = 'Saving…';
+    try{
+      await store.saveDoc(docId, html);
+      serverHtml = html;
+      clearDraft(docId);
+      lastSavedAt = Math.floor(Date.now() / 1000);
+      const banner = document.getElementById('warn');
+      if(banner) banner.remove();
+      quiet ? paintState() : flash('Saved');
+      refreshDocs().catch(()=>{});
+      return true;
+    }catch(e){
+      if(store.mode === 'server'){
+        warn('Could not reach the database — your draft is safe in this browser. ' +
+             'Fix the connection and press Save again, or carry on editing.');
+        const name = (docs.find(d => d.id === docId) || {}).name || 'Recovered';
+        saving = false;
+        if(await useLocal()){
+          const mine = (await LocalStore.listDocs()).find(d => d.name === name);
+          docId = mine ? mine.id : (await LocalStore.createDoc({name, html})).id;
+          serverHtml = '';
+          await refreshDocs();
+          return save(quiet);
+        }
+      }
+      paintState();
+      flash('Save failed');
+      return false;
+    }finally{
+      saving = false;
+    }
+  }
+
+  /** Called before anything that would discard or replace what is on screen. */
+  async function guardUnsaved(what){
+    if(!isDirty()) return true;
+    const target = backendName || 'the database';
+    const ok = confirm('You have unsaved changes.\n\nSave them to ' + target + ' before ' + what + '?\n\n' +
+                       'OK saves first. Cancel keeps them as a local draft you can come back to.');
+    if(ok) return save(true);
+    writeDraft();
+    return true;
+  }
+
+  function warn(msg, actions){
+    let el = document.getElementById('warn');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'warn';
+      document.getElementById('bar').after(el);
+    }
+    el.textContent = '';
+    el.append(msg);
+    (actions || []).forEach(a => {
+      const b = document.createElement('button');
+      b.textContent = a.label;
+      b.onclick = a.fn;
+      el.append(b);
+    });
+  }
+  function dismissWarn(){
+    const el = document.getElementById('warn');
+    if(el) el.remove();
+  }
+
+  /** Throw away this browser's draft and reload whatever the database holds. */
+  async function discardDraft(){
+    if(docId === null) return;
+    if(isDirty() && !confirm('Discard the local changes and load the saved copy from ' +
+                             (backendName || 'the database') + '?\n\n' +
+                             'The draft is deleted. Anything already saved is unaffected.')) return;
+    clearDraft(docId);
+    dismissWarn();
+    await openDoc(docId);
+    flash('Loaded saved copy');
+  }
+
+  /* ===================================================================== *
+   * Documents
+   * ===================================================================== */
+
+  const lastDocKey = () => 'resume-last-doc:' + store.mode;
+
+  async function openDoc(id){
+    const d = await store.getDoc(id);
+    if(!d) return;
+    docId = id;
+    serverHtml = cleanHtml(d.html);
+    lastSavedAt = d.updated_at;
+
+    // a draft only counts if it differs from the stored copy in substance
+    const draft = readDraft(id);
+    const drafted = draft && cleanHtml(draft.html) !== serverHtml;
+    if(draft && !drafted) clearDraft(id);          // a stale no-op draft
+
+    page.innerHTML = drafted ? draft.html : d.html;
+    page.appendChild(guides);          // innerHTML replacement drops the overlay
+    applyEditable();
+    queueMeasure();
+    try{ localStorage.setItem(lastDocKey(), String(id)); }catch(e){}
+    dismissWarn();
+    if(drafted){
+      flash('Unsaved draft restored');
+      warn('This variant has edits that never reached the database, from ' +
+           new Date(draft.t).toLocaleString() + '.', [
+        {label: 'Save them', fn: () => save()},
+        {label: 'Discard and load the saved copy', fn: discardDraft}
+      ]);
+    } else {
+      paintState();
+    }
+  }
+
+  async function refreshProfiles(){
+    profiles = await store.listProfiles();
+  }
+
+  async function loadProfile(id){
+    profileId = id;
+    docs = await store.listDocs(profileId);
+    if(!docs.length){          // a profile with no variants yet gets one
+      await store.createDoc({profile_id: profileId, name: 'Master', html: pristine});
+      docs = await store.listDocs(profileId);
+    }
+    let want = Number(localStorage.getItem(lastDocKey()));
+    if(!docs.some(d => d.id === want)) want = docs[0].id;
+    await openDoc(want);       // openDoc repaints the variant picker
+  }
+
+  function renderLandingPage(){
+    const landingProfiles = document.getElementById('landing-profiles');
+    const colors = ['#6366f1', '#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+    landingProfiles.innerHTML = profiles.map((p, i) => {
+      const color = colors[i % colors.length];
+      return '<div onclick="selectProfileFromLanding(' + p.id + ')" style="background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:0 1px 3px rgba(0,0,0,0.08);border:1px solid #e5e7eb" onmouseover="this.style.boxShadow=\'0 20px 25px rgba(0,0,0,0.12)\';this.style.transform=\'translateY(-8px)\'" onmouseout="this.style.boxShadow=\'0 1px 3px rgba(0,0,0,0.08)\';this.style.transform=\'translateY(0)\'" >' +
+      '<div style="height:120px;background:linear-gradient(135deg,' + color + ' 0%,' + color + 'dd 100%);display:flex;align-items:flex-end;padding:20px"></div>' +
+      '<div style="padding:24px">' +
+      '<h2 style="margin:0 0 8px;font-size:20px;font-weight:600;color:#1a1a1a">' + esc(p.name) + '</h2>' +
+      (p.description ? '<p style="margin:0;font-size:13px;color:#666;line-height:1.5">' + esc(p.description) + '</p>' : '') +
+      '<div style="margin-top:16px;display:flex;align-items:center;gap:8px">' +
+      '<span style="background:' + color + ';color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600">Edit Resume →</span>' +
+      '<span style="flex:1"></span>' +
+      // stopPropagation, or these would also open the profile
+      '<button onclick="event.stopPropagation();openProfileEditor(' + p.id + ')" title="Rename or re-describe" ' +
+        'style="font:500 12px/1 inherit;color:#374151;background:#fff;border:1px solid #d1d5db;' +
+        'border-radius:6px;padding:7px 10px;cursor:pointer">Edit</button>' +
+      (profiles.length > 1        // the last profile cannot be deleted
+        ? '<button onclick="event.stopPropagation();deleteProfileFromHome(' + p.id + ')" title="Delete this profile" ' +
+          'style="font:500 12px/1 inherit;color:#b91c1c;background:#fff;border:1px solid #e5c1c1;' +
+          'border-radius:6px;padding:7px 10px;cursor:pointer">Delete</button>'
+        : '') +
+      '</div>' +
+      '</div></div>'
+    }).join('') +
+    '<div onclick="openProfileCreator()" title="Create a new profile" class="new-card" ' +
+      'style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;' +
+      'min-height:240px;border:2px dashed #d1d5db;border-radius:12px;cursor:pointer;color:#6b7280;' +
+      'transition:all 0.2s" ' +
+      'onmouseover="this.style.borderColor=\'#6366f1\';this.style.color=\'#6366f1\';this.style.background=\'#fff\'" ' +
+      'onmouseout="this.style.borderColor=\'#d1d5db\';this.style.color=\'#6b7280\';this.style.background=\'transparent\'">' +
+      '<div style="font-size:34px;line-height:1;font-weight:300">+</div>' +
+      '<div style="font-size:14px;font-weight:600">New profile</div>' +
+    '</div>';
+    renderActivity();
+  }
+
+  window.selectProfileFromLanding = (pid) => { location.hash = '#/p/' + pid; };
+
+  /* The URL is what says where you are: '#/' is home, '#/p/<id>' is a profile.
+     A hash rather than a path so the same file still routes when opened off
+     disk with no server. Every navigation sets the hash and lets route() act,
+     which is also what makes the browser's back button work. */
+  function showHome(){
+    document.body.classList.remove('nav-open', 'history');
+    document.body.classList.add('home');
+    document.getElementById('landing').style.display = 'flex';
+    document.getElementById('bar').style.display = 'none';
+    renderLandingPage();
+  }
+
+  async function route(){
+    const m = (location.hash || '').match(/^#\/p\/(\d+)(\/history)?$/);
+    const pid = m && Number(m[1]);
+    const wantsHistory = !!(m && m[2]);
+    if(pid && profiles.some(p => p.id === pid)){
+      const name = (profiles.find(p => p.id === pid) || {}).name || 'Resume';
+      document.title = (wantsHistory ? 'History · ' : '') + name + ' — Resume';
+      document.body.classList.remove('home');
+      document.getElementById('landing').style.display = 'none';
+      document.getElementById('bar').style.display = 'flex';
+      if(pid !== profileId || docId === null) await enterEditor(pid);
+      document.body.classList.toggle('history', wantsHistory);
+      if(wantsHistory) await renderHistoryPage();
+      return;
+    }
+    document.body.classList.remove('history');
+    document.title = 'Resume Editor';
+    showHome();                                       // '#/', junk, or a deleted profile
+  }
+
+  window.addEventListener('hashchange', () => { route(); });
+
+  /* A draft lives only in this browser, so leaving with one unsaved is the one
+     way to lose work by accident. The browser supplies its own wording here —
+     the text cannot be set — but the prompt is what matters. */
+  window.addEventListener('beforeunload', e => {
+    if(docId === null || !isDirty()) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+
+  async function enterEditor(pid){
+    try{
+      if(localStorage.getItem('resume-compact')){
+        document.body.classList.add('compact');
+        document.getElementById('btn-compact').textContent = 'Compact: on';
+      }
+    }catch(e){}
+    await loadProfile(pid);
+  }
+
+  async function refreshDocs(){
+    docs = await store.listDocs(profileId);
+  }
+
+  /* ===================================================================== *
+   * Version history
+   * ===================================================================== */
+
+  const when = ts => {
+    const d = new Date(ts * 1000), today = new Date();
+    const t = clock(d);
+    if(d.toDateString() === today.toDateString()) return 'Today ' + t;
+    const y = new Date(today - 864e5);
+    if(d.toDateString() === y.toDateString()) return 'Yesterday ' + t;
+    return d.toLocaleDateString(undefined,{day:'2-digit',month:'short'}) + ' ' + t;
+  };
+
+  /* ------------------------------------------------------------------ *
+   * Version history — its own page, so a snapshot can be read before it
+   * replaces what you have. #/p/<id>/history
+   * ------------------------------------------------------------------ */
+
+  let hpVersions = [], hpSelected = null;
+
+  const bytesLabel = n =>
+    n < 1024 ? n + ' bytes' : (n / 1024).toFixed(1) + ' KB';
+
+  async function renderHistoryPage(){
+    const list = document.getElementById('hp-list');
+    document.getElementById('hp-sub').textContent =
+      (profiles.find(p => p.id === profileId) || {}).name || '';
+    hpVersions = docId === null ? [] : await store.listVersions(docId);
+    if(!hpVersions.length){
+      list.innerHTML = '<p style="color:#9ca3af;padding:20px;font-size:13px">No versions yet. ' +
+        'Press Save on the resume to cut one.</p>';
+      document.getElementById('hp-meta').innerHTML = '';
+      document.getElementById('hp-sheet').innerHTML = '';
+      return;
+    }
+    if(!hpVersions.some(v => v.id === hpSelected)) hpSelected = hpVersions[0].id;
+    paintHpList();
+    await paintHpPreview();
+  }
+
+  function paintHpList(){
+    const now = hpVersions[0];
+    document.getElementById('hp-list').innerHTML = hpVersions.map((v, i) => {
+      const d = new Date(v.created_at * 1000);
+      return '<div class="hp-row' + (v.id === hpSelected ? ' on' : '') +
+             (v.label ? '' : ' auto') + '" data-vid="' + v.id + '">' +
+        '<div class="t">' + esc(v.label || 'Autosave') + '</div>' +
+        '<div class="d">' + d.toLocaleDateString(undefined,
+              {weekday:'short', day:'2-digit', month:'short', year:'numeric'}) +
+          ' · ' + clock(d) + '</div>' +
+        '<div class="d">' + ago(v.created_at) + ' · ' + bytesLabel(v.bytes) + '</div>' +
+        (i === 0 ? '<span class="tag">Latest</span>' : '') +
+        (v.label ? '<span class="tag">Named · kept forever</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  async function paintHpPreview(){
+    const v = hpVersions.find(x => x.id === hpSelected);
+    if(!v) return;
+    const meta = document.getElementById('hp-meta');
+    const full = await store.getVersion(hpSelected);
+    document.getElementById('hp-sheet').innerHTML = full.html;
+
+    // What replacing actually costs, in the only terms available up front.
+    const live = contentOf(page).length, was = full.html.length;
+    const diff = was - live;
+    const delta = diff === 0 ? 'identical in size to what you have open'
+                : (diff > 0 ? bytesLabel(diff) + ' longer' : bytesLabel(-diff) + ' shorter') +
+                  ' than what you have open';
+    meta.innerHTML =
+      '<div style="flex:1;min-width:0">' +
+        '<div style="color:#1a1a1a;font-weight:600">' + esc(v.label || 'Autosave') +
+          ' · ' + new Date(v.created_at * 1000).toLocaleString() + '</div>' +
+        '<div style="font-size:12px">Preview below · ' + esc(delta) + '</div>' +
+      '</div>' +
+      '<button class="go" data-act="restore">Restore this version</button>' +
+      '<button data-act="rename">Name it</button>' +
+      '<button class="rm" data-act="delete">Delete</button>';
+  }
+
+  document.getElementById('hp-list').addEventListener('click', async e => {
+    const row = e.target.closest('.hp-row');
+    if(!row) return;
+    hpSelected = Number(row.dataset.vid);
+    paintHpList();
+    await paintHpPreview();
+  });
+
+  document.getElementById('hp-meta').addEventListener('click', async e => {
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const act = btn.dataset.act, vid = hpSelected;
+    const v = hpVersions.find(x => x.id === vid);
+    try{
+      if(act === 'restore'){
+        if(!confirm('Restore "' + (v.label || 'Autosave') + '" from ' +
+                    new Date(v.created_at * 1000).toLocaleString() + '?\n\n' +
+                    'What you have open now is saved as a version first, so this is reversible.')) return;
+        if(!await guardUnsaved('restoring')) return;
+        const res = await store.restore(docId, vid);
+        page.innerHTML = res.html;
+        page.appendChild(guides);
+        serverHtml = res.html;
+        applyEditable();
+        queueMeasure();
+        lastSavedAt = Math.floor(Date.now() / 1000);
+        flash('Restored');
+        location.hash = '#/p/' + profileId;      // back to the resume to see it
+        return;
+      } else if(act === 'rename'){
+        const label = prompt('Name this version — named versions are kept forever:',
+                             v.label || '');
+        if(label === null) return;
+        await store.labelVersion(vid, label);
+      } else if(act === 'delete'){
+        if(!confirm('Delete this version?\n\nIt moves to Activity on the home page, ' +
+                    'where you can restore it. Nothing is erased.')) return;
+        await store.deleteVersion(vid);
+        hpSelected = null;
+      }
+      await renderHistoryPage();
+      await refreshDocs();
+    }catch(err){ alert(err.message); }
+  });
+
+  document.getElementById('hp-back').onclick = () => { location.hash = '#/p/' + profileId; };
+
+  document.getElementById('hp-name').onclick = async () => {
+    const label = prompt('Name this version:\n(e.g. "Sent to Stripe", "Before rewrite")\n\n' +
+                         'Named versions are never pruned.', '');
+    if(label === null) return;
+    if(!await save(true)) return;
+    await store.createVersion(docId, label);
+    await renderHistoryPage();
+    await refreshDocs();
+    flash('Version saved');
+  };
+
+  /* ===================================================================== *
+   * Block controls, adders, paste, shortcuts
+   * ===================================================================== */
+
+  page.addEventListener('paste', e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
+
+  page.addEventListener('input', touch);
+
+  let tidyTimer;
+  page.addEventListener('focusout', () => {
+    clearTimeout(tidyTimer);
+    tidyTimer = setTimeout(tidy, 150);
+  });
+
+  window.addEventListener('beforeunload', e => {
+    clearTimeout(draftTimer);
+    writeDraft();
+    if(isDirty() && !draftOK){        // nothing would survive the unload
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+  window.addEventListener('blur', () => { clearTimeout(draftTimer); writeDraft(); });
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden){ clearTimeout(draftTimer); writeDraft(); }
+  });
+
+  document.addEventListener('keydown', e => {
+    if((e.metaKey || e.ctrlKey) && !e.shiftKey){
+      const k = e.key.toLowerCase();
+      if(k === 's'){ e.preventDefault(); save(); return; }
+      if((k === 'b' || k === 'i') && document.activeElement && document.activeElement.isContentEditable){
+        e.preventDefault();
+        document.execCommand(k === 'b' ? 'bold' : 'italic');
+      }
+    }
+  });
+
+  page.addEventListener('click', e => {
+    const btn = e.target.closest('.ctl button');
+    if(!btn) return;
+    const block = btn.closest('.job, .sec, .pbreak');
+    if(!block) return;
+
+    if(btn.classList.contains('rm')){
+      const isBreak = block.classList.contains('pbreak');
+      if(isBreak || confirm('Delete this block?')){ block.remove(); touch(); }
+      return;
+    }
+    if(btn.classList.contains('add')){
+      if(block.querySelector('.skills')){
+        block.querySelector('.skills').insertAdjacentHTML('beforeend',
+          '<p class="sk-k">Category</p><p class="sk-v">Item, item, item</p>');
+      } else {
+        const uls = [...block.querySelectorAll('ul')].filter(u => u.closest('.job, .sec') === block);
+        let ul = uls.pop();
+        if(!ul){ ul = document.createElement('ul'); block.appendChild(ul); }
+        const li = document.createElement('li');
+        li.textContent = 'New item';
+        ul.appendChild(li);
+        applyEditable();
+        const r = document.createRange(); r.selectNodeContents(li);
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      }
+      applyEditable();
+      touch();
+      return;
+    }
+
+    const up = btn.classList.contains('up');
+    const skip = el => {
+      while(el && (el.classList.contains('ctl') || el.classList.contains('adder')))
+        el = up ? el.previousElementSibling : el.nextElementSibling;
+      return el;
+    };
+
+    if(block.classList.contains('pbreak')){
+      const near = skip(up ? block.previousElementSibling : block.nextElementSibling);
+      if(near){
+        up ? near.before(block) : near.after(block);
+      } else {
+        // nothing left in this section — step out and sit beside it instead
+        const parent = block.parentElement;
+        if(!parent || parent === page) return;
+        up ? parent.before(block) : parent.after(block);
+      }
+      touch();
+      queueMeasure();
+      return;
+    }
+
+    const sib = up ? block.previousElementSibling : block.nextElementSibling;
+    if(!sib || sib.classList.contains('ctl') || sib.classList.contains('adder')) return;
+
+    const sel = block.classList.contains('job') ? '.job' : '.sec';
+    if(!sib.matches(sel)){
+      const hop = up ? sib.previousElementSibling : sib.nextElementSibling;
+      if(sib.classList.contains('pbreak') && hop && hop.matches(sel)){
+        up ? sib.parentNode.insertBefore(block, hop) : hop.after(block);
+        touch();
+      }
+      return;
+    }
+    if(up) sib.before(block); else sib.after(block);
+    touch();
+  });
+
+  const TPL_CTL = '<div class="ctl"><button class="up" title="Move up">&uarr;</button><button class="dn" title="Move down">&darr;</button><button class="rm" title="Delete">&#10005;</button></div>';
+  const TPL_JOB = '<div class="job">' + TPL_CTL +
+    '<div class="job-head"><p class="role">Company, City &mdash; Title</p><p class="date">Mon YYYY &ndash; Mon YYYY</p></div>' +
+    '<p class="sub">One-line context &middot; team size</p>' +
+    '<ul><li>Achievement or responsibility</li></ul></div>';
+  const TPL_SEC = '<section class="sec">' + TPL_CTL + '<h2>NEW SECTION</h2><ul><li>Item</li></ul></section>';
+
+  page.addEventListener('click', e => {
+    const btn = e.target.closest('.adder button');
+    if(!btn) return;
+    const kind = btn.dataset.add;
+    if(kind === 'job')        btn.closest('.adder').insertAdjacentHTML('beforebegin', TPL_JOB);
+    else if(kind === 'section') btn.closest('.adder').insertAdjacentHTML('beforebegin', TPL_SEC);
+    else if(kind === 'pbreak')  btn.closest('.adder').insertAdjacentHTML('beforebegin', '<div class="pbreak" contenteditable="false"></div>');
+    else if(kind === 'skill')   btn.closest('.sec').querySelector('.skills')
+                                   .insertAdjacentHTML('beforeend', '<p class="sk-k">Category</p><p class="sk-v">Item, item, item</p>');
+    applyEditable();
+    touch();
+  });
+
+  page.addEventListener('dblclick', e => {
+    const pb = e.target.closest('.pbreak');
+    if(pb && confirm('Remove this page break?')){ pb.remove(); touch(); }
+  });
+
+  /* ===================================================================== *
+   * Toolbar
+   * ===================================================================== */
+
+  let editing = true;
+
+  const goHome = async () => {
+    if(!await guardUnsaved('leaving for the profile list')) return;
+    if(location.hash === '#/' || !location.hash) route(); else location.hash = '#/';
+  };
+  document.getElementById('btn-home').onclick = goHome;
+  document.getElementById('btn-logo').onclick = goHome;
+
+  /* The drawer covers the page, so anything you press inside it closes it. */
+  const bar = document.getElementById('bar');
+  const closeNav = () => document.body.classList.remove('nav-open');
+  document.getElementById('bar-toggle').onclick = e => {
+    e.stopPropagation();
+    document.body.classList.toggle('nav-open');
+  };
+  document.getElementById('scrim').onclick = closeNav;
+  bar.addEventListener('click', e => { if(e.target.closest('button')) closeNav(); });
+
+  ppClose.onclick = () => { ppanel.style.display = 'none'; };
+  ppanel.onclick = (e) => { if(e.target === ppanel) ppanel.style.display = 'none'; };
+
+  // Every variant in the store, so a new persona can start as a copy of the
+  // resume you actually maintain rather than the stale one baked into this file.
+  async function fillSeedOptions(){
+    const all = await store.listDocs();
+    const pname = id => (profiles.find(p => p.id === id) || {}).name || '?';
+    newProfileSeed.innerHTML =
+      '<option value="">Built-in resume (blank slate)</option>' +
+      all.map(d => '<option value="' + d.id + '">Copy of ' +
+        esc(pname(d.profile_id)) + ' / ' + esc(d.name) + '</option>').join('');
+  }
+
+  btnCreateProfile.onclick = async () => {
+    const name = newProfileName.value.trim();
+    const desc = newProfileDesc.value.trim();
+    if(!name) { alert('Profile name is required'); return; }
+    try{
+      if(editingProfileId !== null){
+        await store.updateProfile(editingProfileId, {name, description: desc});
+      } else {
+        const seed = newProfileSeed.value;
+        const prof = await store.createProfile({name, description: desc});
+        // A profile with no resume is unusable, so give it its first one now.
+        await store.createDoc(seed
+          ? {profile_id: prof.id, name: 'Master', copy_of: Number(seed)}
+          : {profile_id: prof.id, name: 'Master', html: pristine});
+      }
+      const edited = editingProfileId !== null;
+      editingProfileId = null;
+      ppanel.style.display = 'none';
+      newProfileName.value = '';
+      newProfileDesc.value = '';
+      await refreshProfiles();
+      renderLandingPage();
+      await fillSeedOptions();
+      flash(edited ? 'Profile updated' : 'Profile created');
+    }catch(e){
+      alert('Error: ' + e.message);
+    }
+  };
+
+  /* ------------------------------------------------------------------ *
+   * Home page: profiles and the activity log
+   * ------------------------------------------------------------------ */
+
+  let editingProfileId = null;      // null while the dialog is creating
+
+  window.openProfileCreator = () => {
+    editingProfileId = null;
+    document.getElementById('pp-title').textContent = 'New profile';
+    newProfileName.value = '';
+    newProfileDesc.value = '';
+    document.getElementById('seed-label').style.display = 'block';
+    newProfileSeed.style.display = 'block';
+    btnCreateProfile.textContent = 'Create profile';
+    ppanel.style.display = 'flex';
+    fillSeedOptions();
+  };
+
+  window.openProfileEditor = (pid) => {
+    const p = profiles.find(x => x.id === pid);
+    if(!p) return;
+    editingProfileId = pid;
+    document.getElementById('pp-title').textContent = 'Edit profile';
+    newProfileName.value = p.name;
+    newProfileDesc.value = p.description || '';
+    document.getElementById('seed-label').style.display = 'none';  // only new ones seed
+    newProfileSeed.style.display = 'none';
+    btnCreateProfile.textContent = 'Save changes';
+    ppanel.style.display = 'flex';
+  };
+
+  /* Deleting is reversible now, so the confirm says what it costs and where to
+     undo it rather than warning about something permanent. */
+  window.deleteProfileFromHome = async (pid) => {
+    const p = profiles.find(x => x.id === pid);
+    let docsIn = [];
+    try{ docsIn = await store.listDocs(pid); }catch(err){}
+    const vers = docsIn.reduce((n, d) => n + (d.versions || 0), 0);
+    const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    if(!confirm('Delete "' + (p ? p.name : 'this profile') + '"?\n\n' +
+                'It holds ' + plural(docsIn.length, 'resume') + ' and ' +
+                plural(vers, 'saved version') + '.\n\n' +
+                'Nothing is erased — it moves to Activity, where you can restore it.')) return;
+    try{
+      await store.deleteProfile(pid);
+      await refreshProfiles();
+      renderLandingPage();
+      await renderActivity();
+      await fillSeedOptions();
+      flash('Deleted — restorable from Activity');
+      if(pid === profileId) location.hash = '#/';
+    }catch(err){ alert(err.message); }
+  };
+
+  /* Nothing is ever removed from the database, so this list is the complete
+     undo history: profiles, resumes and snapshots alike. */
+  async function renderActivity(){
+    const host = document.getElementById('tab-activity');
+    let items = [];
+    try{ items = await store.activity(); }catch(e){}
+    const tab = document.querySelector('#home-tabs button[data-tab="activity"]');
+    if(tab) tab.textContent = items.length ? 'Activity (' + items.length + ')' : 'Activity';
+    if(!items.length){
+      host.innerHTML = '<p style="color:#9ca3af;padding:28px 0">Nothing deleted yet. ' +
+        'Anything you delete lands here and can be restored.</p>';
+      return;
+    }
+    const tint = {profile:'#6366f1', document:'#06b6d4', version:'#9ca3af'};
+    host.innerHTML = items.map(it =>
+      '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;' +
+        'border:1px solid #e5e7eb;border-radius:10px;margin-bottom:10px">' +
+      '<span style="flex:none;font:600 10px/1 inherit;text-transform:uppercase;letter-spacing:.5px;' +
+        'color:#fff;background:' + (tint[it.kind] || '#9ca3af') + ';padding:5px 8px;border-radius:4px">' +
+        esc(it.kind) + '</span>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-weight:600;color:#1a1a1a">' + esc(it.name) + '</div>' +
+      '<div style="font-size:12px;color:#6b7280">' + esc(it.detail) + ' · deleted ' + ago(it.deleted_at) + '</div>' +
+      '</div>' +
+      '<button class="undo-item" data-kind="' + it.kind + '" data-id="' + it.id + '" ' +
+        'style="flex:none;font:600 12px/1 inherit;color:#4f46e5;background:#fff;border:1px solid #d1d5db;' +
+        'border-radius:6px;padding:8px 14px;cursor:pointer">Restore</button>' +
+      '</div>').join('');
+  }
+
+  document.getElementById('tab-activity').addEventListener('click', async e => {
+    const btn = e.target.closest('.undo-item');
+    if(!btn) return;
+    const id = Number(btn.dataset.id);
+    try{
+      if(btn.dataset.kind === 'profile')       await store.restoreProfile(id);
+      else if(btn.dataset.kind === 'document') await store.undeleteDoc(id);
+      else                                     await store.undeleteVersion(id);
+      await refreshProfiles();
+      renderLandingPage();
+      await renderActivity();
+      await fillSeedOptions();
+      flash('Restored');
+    }catch(err){ alert(err.message); }
+  });
+
+  document.getElementById('home-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-tab]');
+    if(!btn) return;
+    document.querySelectorAll('#home-tabs button').forEach(b => b.classList.toggle('on', b === btn));
+    const activity = btn.dataset.tab === 'activity';
+    document.getElementById('tab-profiles').hidden = activity;
+    document.getElementById('tab-activity').hidden = !activity;
+    if(activity) renderActivity();
+  });
+
+  saveBtn.onclick = () => save();
+
+  /** Put a forced break immediately before the block holding the caret. */
+
+  document.getElementById('btn-compact').onclick = e => {
+    const on = document.body.classList.toggle('compact');
+    e.target.textContent = 'Compact: ' + (on ? 'on' : 'off');
+    try{ localStorage.setItem('resume-compact', on ? '1' : ''); }catch(err){}
+    measure();
+  };
+  discardBtn.onclick = discardDraft;
+
+  document.getElementById('btn-history').onclick = () => {
+    location.hash = '#/p/' + profileId + '/history';
+  };
+
+  document.getElementById('btn-print').onclick = () => { tidy(); writeDraft(); measure(); window.print(); };
+
+  document.getElementById('btn-edit').onclick = e => {
+    editing = !editing;
+    document.body.classList.toggle('editing', editing);
+    applyEditable();
+    queueMeasure();
+    e.target.textContent = 'Editing: ' + (editing ? 'on' : 'off');
+  };
+
+  /* ===================================================================== *
+   * Boot
+   * ===================================================================== */
+
+  async function useLocal(){
+    store = LocalStore;
+    try{
+      localStorage.setItem('probe','1'); localStorage.removeItem('probe');
+    }catch(e){
+      backendName = 'not saving';
+      warn('Autosave is off: this browser blocks local storage for this page (previews, some private windows). ' +
+           'Run "python3 server.py" for database-backed autosave, or use Download HTML to keep your edits.');
+      applyEditable();
+      return false;
+    }
+    LocalStore.init();
+    backendName = 'browser only';
+    return true;
+  }
+
+  (async function boot(){
+    let ok = false;
+    try{
+      const res = await fetch('/api/health', {cache:'no-store'});
+      if(res.ok){
+        const info = await res.json();
+        store = ServerStore;
+        backendName = info.backend || 'server';
+        ok = true;
+      }
+    }catch(e){ /* opened straight off disk — no server */ }
+
+    if(!ok && !(await useLocal())) return;
+
+    try{ localStorage.setItem('probe','1'); localStorage.removeItem('probe'); }
+    catch(e){ draftOK = false; }
+
+    await refreshProfiles();
+    if(!profiles.length){
+      const created = await store.createProfile({name: 'Primary', description: 'Main resume profile'});
+      await refreshProfiles();
+    }
+
+    await route();
+  })();
+})();
+</script>
+</body>
+</html>

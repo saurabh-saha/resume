@@ -1,0 +1,5 @@
+.env
+resume.db
+resume.db-wal
+resume.db-shm
+__pycache__/
