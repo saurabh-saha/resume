@@ -212,27 +212,72 @@ Save as PDF.
 
 ## API
 
-`GET /api/docs` in the browser for the generated OpenAPI page.
+23 endpoints, no authentication. Base URL is wherever it is running:
 
 ```
-GET    /api/profiles                         list all profiles
-POST   /api/profiles                         create {name, description}
-PATCH  /api/profiles/{id}                    update {name, description}
-DELETE /api/profiles/{id}                    delete profile and its documents
-
-GET    /api/documents                        list all variants (optionally ?profile_id=N)
-POST   /api/documents                        create {profile_id, name, html | copy_of}
-GET    /api/documents/{id}                   current HTML
-PUT    /api/documents/{id}                   autosave {html}
-PATCH  /api/documents/{id}                   rename {name}
-DELETE /api/documents/{id}                   delete (refuses the last one)
-GET    /api/documents/{id}/versions          history
-POST   /api/documents/{id}/versions          name the current state {label}
-POST   /api/documents/{id}/restore/{vid}     roll back (snapshots first)
-GET    /api/versions/{vid}                   one version's HTML
-PATCH  /api/versions/{vid}                   (re)label {label}
-DELETE /api/versions/{vid}                   delete one version
+https://resume-jade-sigma-97.vercel.app     deployed
+http://127.0.0.1:8000                       local
 ```
+
+`GET /api/docs` gives the generated OpenAPI page, `GET /openapi.json` the spec.
+
+### Profiles
+
+```
+GET    /api/profiles                      live profiles
+POST   /api/profiles                      create {name, description}
+PATCH  /api/profiles/{id}                 update {name, description}
+DELETE /api/profiles/{id}                 soft delete — hides it; refuses the last live one
+GET    /api/profiles/deleted              soft-deleted profiles
+POST   /api/profiles/{id}/restore         undo a soft delete
+```
+
+### Documents
+
+A document is one resume. Every profile holds one.
+
+```
+GET    /api/documents                     all documents (optionally ?profile_id=N)
+POST   /api/documents                     create {profile_id, name, html | copy_of}
+GET    /api/documents/{id}                the document, including its html
+PUT    /api/documents/{id}                replace the html {html} — this is how you edit
+PATCH  /api/documents/{id}                rename {name}
+DELETE /api/documents/{id}                soft delete; refuses a profile's last one
+POST   /api/documents/{id}/undelete       undo
+```
+
+Editing is read–modify–write: `GET` the document, change its `html`, `PUT` it back.
+There is no section-level endpoint — the html is one blob.
+
+### Versions
+
+```
+GET    /api/documents/{id}/versions       history (?deleted=1 for hidden ones)
+POST   /api/documents/{id}/versions       name the current state {label}
+POST   /api/documents/{id}/restore/{vid}  roll back — snapshots first, so reversible
+GET    /api/versions/{vid}                one version's html
+PATCH  /api/versions/{vid}                (re)label {label}
+DELETE /api/versions/{vid}                soft delete
+POST   /api/versions/{vid}/undelete       undo
+```
+
+### Other
+
+```
+GET    /api/health                        {ok, backend, target}
+GET    /api/activity                      everything soft-deleted, newest first
+```
+
+### Notes for anyone calling this
+
+- **No auth.** Every endpoint above is open to anyone with the URL, including
+  the writes and deletes.
+- `PUT /api/documents/{id}` overwrites the whole document. Two clients editing
+  at once will clobber each other — there is no locking or conflict check.
+- Saves cut a version at most once every 3 minutes, so rapid writes update the
+  document without filling the history.
+- Nothing is ever removed from the database. `DELETE` sets a `deleted_at` stamp
+  and the matching restore/undelete endpoint reverses it.
 
 ## Printing
 
