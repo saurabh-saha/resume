@@ -365,6 +365,25 @@
   </div>
 </div>
 
+<div id="spanel" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
+  <div style="position:relative;background:#fff;border-radius:12px;padding:24px;width:min(560px,92vw);max-height:84vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.15);font-family:'Segoe UI',Helvetica,Arial,sans-serif">
+    <h2 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#1a1a1a">Share this resume</h2>
+    <p style="margin:0 0 18px;font-size:13px;color:#6b7280">Anyone with the link can read it. They cannot edit, and it is not listed or indexed.</p>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input id="share-url" readonly style="flex:1;min-width:0;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;font-family:inherit;font-size:13px;background:#f9fafb">
+      <button id="share-copy" style="flex:none;font:600 13px/1 inherit;color:#fff;background:#4f46e5;border:none;border-radius:6px;padding:10px 16px;cursor:pointer">Copy</button>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">
+      <span id="share-views" style="font-size:13px;color:#6b7280"></span>
+      <span style="flex:1"></span>
+      <button id="share-rotate" style="font:500 12px/1 inherit;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:8px 12px;cursor:pointer">New link</button>
+      <button id="share-revoke" style="font:500 12px/1 inherit;color:#b91c1c;background:#fff;border:1px solid #e5c1c1;border-radius:6px;padding:8px 12px;cursor:pointer">Revoke</button>
+    </div>
+    <div id="share-comments" style="border-top:1px solid #e5e7eb;padding-top:16px"></div>
+    <button id="share-close" style="position:absolute;top:12px;right:12px;background:#f3f4f6;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:18px;color:#6b7280">✕</button>
+  </div>
+</div>
+
 <div id="ppanel" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
   <div style="position:relative;background:#fff;border-radius:12px;padding:24px;max-width:500px;max-height:80vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,0.15);font-family:'Segoe UI',Helvetica,Arial,sans-serif">
     <h2 id="pp-title" style="margin:0 0 20px;font-size:24px;font-weight:700;color:#1a1a1a">New profile</h2>
@@ -410,6 +429,9 @@
   <div class="grp">Design</div>
   <button id="btn-compact" title="Compact spacing &#10;&#10;Body text 9pt → 8.5pt, tighter line-height, smaller headings and gaps — usually enough to pull a stray page back. &#10;&#10;Screen and PDF stay identical, so what you see is what prints. Remembered between sessions.">Compact: off</button>
   <span id="fit" title="Content height vs. printable page height"></span>
+
+  <div class="grp">Share</div>
+  <button id="btn-share" title="Share a read-only link &#10;&#10;Mints an unguessable link anyone can open to read this resume — no editing, no sidebar. Shows the view count and any comments people leave. Revoke it any time and the link stops working.">Share link</button>
 
   <span class="sep"></span>
   <button id="btn-print" title="Download as PDF &#10;&#10;Opens the browser print dialog. Set Destination to “Save as PDF” — that is the only export here. &#10;&#10;Leave Margins on Default (the 16mm margins come from the stylesheet) and untick “Headers and footers”, or the date and URL are printed onto the page.">Download</button>
@@ -668,6 +690,10 @@
     deleteProfile: (id)          => api('DELETE', '/api/profiles/' + id),
     listDeletedProfiles: ()      => api('GET',    '/api/profiles/deleted'),
     activity:      ()            => api('GET',    '/api/activity'),
+    share:         (pid, rotate) => api('POST',   '/api/profiles/' + pid + '/share', {rotate: !!rotate}),
+    unshare:       (pid)         => api('DELETE', '/api/profiles/' + pid + '/share'),
+    comments:      (pid)         => api('GET',    '/api/profiles/' + pid + '/comments'),
+    deleteComment: (cid)         => api('DELETE', '/api/comments/' + cid),
     undeleteDoc:   (id)          => api('POST',   '/api/documents/' + id + '/undelete'),
     undeleteVersion:(vid)        => api('POST',   '/api/versions/' + vid + '/undelete'),
     restoreProfile:(id)          => api('POST',   '/api/profiles/' + id + '/restore'),
@@ -1709,6 +1735,70 @@
    * ------------------------------------------------------------------ */
 
   let editingProfileId = null;      // null while the dialog is creating
+
+  /* Sharing: an unguessable link, a view count, and whatever people leave on
+     it. Comments appear as soon as they are posted; moderation is deletion
+     after the fact, which is how the rest of this app treats removal. */
+  const spanel = document.getElementById('spanel');
+  const shareUrl = document.getElementById('share-url');
+
+  async function paintShare(){
+    const s = await store.share(profileId, false);
+    shareUrl.value = location.origin + s.path;
+    const p = profiles.find(x => x.id === profileId) || {};
+    document.getElementById('share-views').textContent =
+      (p.views || 0) + ' view' + ((p.views || 0) === 1 ? '' : 's');
+    const list = await store.comments(profileId);
+    document.getElementById('share-comments').innerHTML =
+      '<div style="font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;' +
+        'letter-spacing:.5px;margin-bottom:10px">Comments (' + list.length + ')</div>' +
+      (list.length ? list.map(c =>
+        '<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #e5e7eb;' +
+          'border-radius:8px;margin-bottom:8px">' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;font-size:13px;color:#1a1a1a">' + esc(c.name) +
+          '<span style="font-weight:400;color:#9ca3af;font-size:11px;margin-left:8px">' + ago(c.created_at) + '</span></div>' +
+        '<div style="font-size:13px;color:#374151;margin-top:3px;white-space:pre-wrap;word-wrap:break-word">' + esc(c.body) + '</div>' +
+        '</div>' +
+        '<button class="del-comment" data-id="' + c.id + '" style="flex:none;font:500 11px/1 inherit;color:#b91c1c;' +
+          'background:#fff;border:1px solid #e5c1c1;border-radius:4px;padding:6px 9px;cursor:pointer">Delete</button>' +
+        '</div>').join('')
+        : '<p style="color:#9ca3af;font-size:13px;margin:0">Nothing yet.</p>');
+  }
+
+  document.getElementById('btn-share').onclick = async () => {
+    spanel.style.display = 'flex';
+    try{ await paintShare(); }catch(e){ alert(e.message); }
+  };
+  document.getElementById('share-close').onclick = () => { spanel.style.display = 'none'; };
+  spanel.onclick = e => { if(e.target === spanel) spanel.style.display = 'none'; };
+
+  document.getElementById('share-copy').onclick = async () => {
+    try{ await navigator.clipboard.writeText(shareUrl.value); flash('Link copied'); }
+    catch(e){ shareUrl.select(); }
+  };
+
+  document.getElementById('share-rotate').onclick = async () => {
+    if(!confirm('Make a new link?\n\nThe current one stops working immediately, for everyone you have already sent it to.')) return;
+    const s = await store.share(profileId, true);
+    shareUrl.value = location.origin + s.path;
+    flash('New link');
+  };
+
+  document.getElementById('share-revoke').onclick = async () => {
+    if(!confirm('Revoke this link?\n\nIt stops working at once. You can mint a new one later.')) return;
+    await store.unshare(profileId);
+    spanel.style.display = 'none';
+    flash('Link revoked');
+  };
+
+  document.getElementById('share-comments').addEventListener('click', async e => {
+    const btn = e.target.closest('.del-comment');
+    if(!btn) return;
+    if(!confirm('Delete this comment?')) return;
+    try{ await store.deleteComment(Number(btn.dataset.id)); await paintShare(); }
+    catch(err){ alert(err.message); }
+  });
 
   window.openProfileCreator = () => {
     editingProfileId = null;

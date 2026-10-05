@@ -15,8 +15,10 @@ pruned; autosaves are capped per document.
 """
 from __future__ import annotations
 
+import html as htmllib
 import os
 import re
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -98,6 +100,15 @@ class DocIn(BaseModel):
     copy_of: int | None = None      # clone another document's current HTML
 
 
+class ShareIn(BaseModel):
+    rotate: bool = False
+
+
+class CommentIn(BaseModel):
+    name: str = Field(max_length=80)
+    body: str = Field(max_length=2000)
+
+
 class HtmlIn(BaseModel):
     html: str
 
@@ -118,6 +129,7 @@ def prepare_storage() -> None:
     if not os.environ.get("SKIP_PROFILE_MIGRATION"):
         migrate_to_profiles()
     migrate_soft_delete()
+    migrate_sharing()
 
 
 app = FastAPI(title="Resume store", docs_url="/api/docs")
@@ -163,8 +175,8 @@ def health():
 def list_profiles():
     with db() as con:
         rows = con.execute(
-            "SELECT id, name, description, created_at FROM profile "
-            "WHERE deleted_at IS NULL ORDER BY created_at"
+            "SELECT id, name, description, created_at, share_token, views "
+            "FROM profile WHERE deleted_at IS NULL ORDER BY created_at"
         ).fetchall()
         return [dict(r) for r in rows]
 
@@ -236,6 +248,227 @@ def delete_profile(profile_id: int):
             "UPDATE profile SET deleted_at = ? WHERE id = ?", (now(), profile_id)
         )
 
+
+@app.post("/api/profiles/{profile_id}/share")
+def share_profile(profile_id: int, body: ShareIn | None = None):
+    """Mint the profile's share token, or rotate it. Rotating invalidates any
+    link already sent out, which is the only way to take one back."""
+    with db() as con:
+        row = con.execute(
+            "SELECT share_token FROM profile WHERE id = ? AND deleted_at IS NULL",
+            (profile_id,),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(404, "No such profile")
+        token = row["share_token"]
+        if token is None or (body and body.rotate):
+            token = secrets.token_urlsafe(9)
+            con.execute("UPDATE profile SET share_token = ? WHERE id = ?",
+                        (token, profile_id))
+        return {"id": profile_id, "token": token, "path": f"/r/{token}"}
+
+
+@app.delete("/api/profiles/{profile_id}/share", status_code=204)
+def unshare_profile(profile_id: int):
+    """Revoke. The link stops resolving immediately."""
+    with db() as con:
+        con.execute("UPDATE profile SET share_token = NULL WHERE id = ?", (profile_id,))
+
+
+# --------------------------------------------------------------- comments ---
+def _comments(con, profile_id: int):
+    rows = con.execute(
+        """SELECT id, name, body, created_at FROM comment
+            WHERE profile_id = ? AND deleted_at IS NULL
+            ORDER BY created_at DESC""",
+        (profile_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+@app.get("/api/profiles/{profile_id}/comments")
+def list_comments(profile_id: int):
+    with db() as con:
+        return _comments(con, profile_id)
+
+
+@app.delete("/api/comments/{comment_id}", status_code=204)
+def delete_comment(comment_id: int):
+    """Soft, like everything else here."""
+    with db() as con:
+        con.execute("UPDATE comment SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL",
+                    (now(), comment_id))
+
+
+# ----------------------------------------------------------------- public ---
+def _by_token(con, token: str):
+    row = con.execute(
+        "SELECT * FROM profile WHERE share_token = ? AND deleted_at IS NULL", (token,)
+    ).fetchone()
+    if row is None:
+        raise HTTPException(404, "No such page")
+    return row
+
+
+@app.get("/api/public/{token}")
+def public_json(token: str):
+    with db() as con:
+        p = _by_token(con, token)
+        doc = con.execute(
+            """SELECT id, name, html FROM document
+                WHERE profile_id = ? AND deleted_at IS NULL
+                ORDER BY updated_at DESC LIMIT 1""",
+            (p["id"],),
+        ).fetchone()
+        return {
+            "name": p["name"],
+            "description": p["description"],
+            "views": p["views"],
+            "html": doc["html"] if doc else "",
+            "comments": _comments(con, p["id"]),
+        }
+
+
+@app.post("/api/public/{token}/comments", status_code=201)
+def post_comment(token: str, body: CommentIn):
+    name = body.name.strip()[:80] or "Anonymous"
+    text = body.body.strip()[:2000]
+    if not text:
+        raise HTTPException(400, "Comment is empty")
+    with db() as con:
+        p = _by_token(con, token)
+        cid = con.execute(
+            "INSERT INTO comment (profile_id, name, body, created_at) "
+            "VALUES (?,?,?,?) RETURNING id",
+            (p["id"], name, text, now()),
+        ).fetchone()["id"]
+        return {"id": cid, "name": name, "body": text}
+
+
+PUBLIC_CSS = """
+  body{background:#f1f3f5;display:block}
+  .pub-bar{
+    position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:14px;
+    padding:12px 20px;background:#fff;border-bottom:1px solid #e5e7eb;
+    font:500 14px/1 'Segoe UI',Helvetica,Arial,sans-serif;color:#1a1a1a;
+  }
+  .pub-bar .nm{font-weight:700;color:#4f46e5}
+  .pub-bar .views{color:#6b7280;font-size:13px}
+  .pub-bar .sp{flex:1}
+  .pub-bar button{
+    font:600 13px/1 inherit;color:#fff;background:#4f46e5;border:none;
+    border-radius:6px;padding:9px 16px;cursor:pointer;
+  }
+  .pub-bar button:hover{background:#4338ca}
+  #doc{padding:24px 12px 40px;overflow-x:auto}
+  .wrap{max-width:210mm;margin:0 auto 60px;padding:0 12px;
+        font-family:'Segoe UI',Helvetica,Arial,sans-serif}
+  .wrap h3{font-size:16px;margin:0 0 14px;color:#1a1a1a}
+  .cmt{background:#fff;border:1px solid #e5e7eb;border-radius:10px;
+       padding:14px 16px;margin-bottom:10px}
+  .cmt .who{font-weight:600;font-size:13px;color:#1a1a1a}
+  .cmt .when{font-size:11px;color:#9ca3af;margin-left:8px;font-weight:400}
+  .cmt .txt{font-size:14px;line-height:1.5;color:#374151;margin-top:6px;
+            white-space:pre-wrap;word-wrap:break-word}
+  .cmt-form{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px}
+  .cmt-form input,.cmt-form textarea{
+    width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;
+    font-family:inherit;font-size:14px;margin-bottom:10px;box-sizing:border-box;
+  }
+  .cmt-form textarea{height:84px;resize:vertical}
+  .cmt-form button{
+    font:600 13px/1 inherit;color:#fff;background:#4f46e5;border:none;
+    border-radius:6px;padding:10px 18px;cursor:pointer;
+  }
+  .empty{color:#9ca3af;font-size:14px;padding:10px 0}
+  @media print{
+    .pub-bar,.wrap{display:none !important}
+    body{background:#fff}
+    #doc{padding:0}
+    .page{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}
+  }
+"""
+
+
+def _resume_css() -> str:
+    """The editor's own stylesheet, so a shared page renders exactly as the PDF
+    does. Its read-only rules (body without .editing) already hide the ctl
+    buttons, adders and page guides, so nothing needs stripping."""
+    page = INDEX.read_text(encoding="utf-8")
+    return page[page.index("<style>") + 7 : page.index("</style>")]
+
+
+@app.get("/r/{token}")
+def public_page(token: str, mode: str = "all"):
+    """Read-only resume for sharing. `?mode=resume` drops the bar and comments,
+    leaving only the sheet."""
+    with db() as con:
+        p = _by_token(con, token)
+        doc = con.execute(
+            """SELECT html FROM document
+                WHERE profile_id = ? AND deleted_at IS NULL
+                ORDER BY updated_at DESC LIMIT 1""",
+            (p["id"],),
+        ).fetchone()
+        con.execute("UPDATE profile SET views = views + 1 WHERE id = ?", (p["id"],))
+        views = (p["views"] or 0) + 1
+        comments = _comments(con, p["id"])
+
+    esc = htmllib.escape
+    body = doc["html"] if doc else "<p>This resume is empty.</p>"
+    bare = mode == "resume"
+
+    bar = "" if bare else (
+        '<div class="pub-bar">'
+        f'<span class="nm">{esc(p["name"])}</span>'
+        f'<span class="views">{views} view{"" if views == 1 else "s"}</span>'
+        '<span class="sp"></span>'
+        '<button onclick="window.print()">Download PDF</button>'
+        "</div>"
+    )
+
+    if comments:
+        items = "".join(
+            '<div class="cmt"><div><span class="who">' + esc(c["name"]) + "</span>"
+            '<span class="when">' + time.strftime("%d %b %Y", time.localtime(c["created_at"]))
+            + "</span></div>"
+            '<div class="txt">' + esc(c["body"]) + "</div></div>"
+            for c in comments
+        )
+    else:
+        items = '<p class="empty">No comments yet.</p>'
+
+    talk = "" if bare else (
+        '<div class="wrap">'
+        f"<h3>Comments ({len(comments)})</h3>"
+        f"{items}"
+        '<form class="cmt-form" onsubmit="return send(event)">'
+        '<input id="nm" placeholder="Your name" maxlength="80" required>'
+        '<textarea id="bd" placeholder="Leave a comment" maxlength="2000" required></textarea>'
+        '<button type="submit">Post comment</button>'
+        "</form></div>"
+        "<script>"
+        "async function send(e){e.preventDefault();"
+        "const n=document.getElementById('nm').value.trim();"
+        "const b=document.getElementById('bd').value.trim();"
+        "if(!n||!b)return false;"
+        f"const r=await fetch('/api/public/{token}/comments',"
+        "{method:'POST',headers:{'Content-Type':'application/json'},"
+        "body:JSON.stringify({name:n,body:b})});"
+        "if(r.ok)location.reload(); else alert('Could not post that comment.');"
+        "return false;}"
+        "</script>"
+    )
+
+    return HTMLResponse(
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        f"<title>{esc(p['name'])} — Saurabh Saha</title>"
+        '<meta name="robots" content="noindex, nofollow">'
+        f"<style>{_resume_css()}</style><style>{PUBLIC_CSS}</style></head><body>"
+        f'{bar}<div id="doc"><div class="page">{body}</div></div>{talk}'
+        "</body></html>"
+    )
 
 @app.get("/api/activity")
 def activity():
@@ -607,6 +840,47 @@ def migrate_soft_delete() -> None:
         con.execute(
             "CREATE UNIQUE INDEX IF NOT EXISTS document_live_name "
             "ON document(profile_id, name) WHERE deleted_at IS NULL"
+        )
+
+
+def migrate_sharing() -> None:
+    """Add profile.share_token / profile.views and the comment table.
+
+    Idempotent, same as migrate_soft_delete: safe on every start.
+    """
+    import db as dbmod
+
+    with db() as con:
+        wide = "BIGINT" if dbmod.IS_PG else "INTEGER"
+        if dbmod.IS_PG:
+            have = {r["column_name"] for r in con.execute(
+                """SELECT column_name FROM information_schema.columns
+                    WHERE table_name = 'profile'""").fetchall()}
+        else:
+            have = {r["name"] for r in con.execute("PRAGMA table_info(profile)")}
+        if "share_token" not in have:
+            con.execute("ALTER TABLE profile ADD COLUMN share_token TEXT")
+            print("  · added profile.share_token")
+        if "views" not in have:
+            con.execute(f"ALTER TABLE profile ADD COLUMN views {wide} NOT NULL DEFAULT 0")
+            print("  · added profile.views")
+        con.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS profile_share_token "
+            "ON profile(share_token) WHERE share_token IS NOT NULL"
+        )
+        pk = ("BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY" if dbmod.IS_PG
+              else "INTEGER PRIMARY KEY AUTOINCREMENT")
+        con.execute(f"""CREATE TABLE IF NOT EXISTS comment (
+            id          {pk},
+            profile_id  {wide} NOT NULL REFERENCES profile(id) ON DELETE CASCADE,
+            name        TEXT NOT NULL,
+            body        TEXT NOT NULL,
+            created_at  {wide} NOT NULL,
+            deleted_at  {wide}
+        )""")
+        con.execute(
+            "CREATE INDEX IF NOT EXISTS comment_profile_idx "
+            "ON comment(profile_id, created_at DESC)"
         )
 
 

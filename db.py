@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS profile (
     name        TEXT    NOT NULL,
     description TEXT,
     created_at  INTEGER NOT NULL,
+    deleted_at  INTEGER,
+    share_token TEXT,
+    views       INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS comment (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    profile_id  INTEGER NOT NULL REFERENCES profile(id) ON DELETE CASCADE,
+    name        TEXT    NOT NULL,
+    body        TEXT    NOT NULL,
+    created_at  INTEGER NOT NULL,
     deleted_at  INTEGER
 );
 -- Name uniqueness is a partial index over live rows only (a deleted profile
@@ -85,6 +95,16 @@ CREATE TABLE IF NOT EXISTS profile (
     id          BIGGENERATED,
     name        TEXT   NOT NULL,
     description TEXT,
+    created_at  BIGINT NOT NULL,
+    deleted_at  BIGINT,
+    share_token TEXT,
+    views       BIGINT NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS comment (
+    id          BIGGENERATED,
+    profile_id  BIGINT NOT NULL REFERENCES profile(id) ON DELETE CASCADE,
+    name        TEXT   NOT NULL,
+    body        TEXT   NOT NULL,
     created_at  BIGINT NOT NULL,
     deleted_at  BIGINT
 );

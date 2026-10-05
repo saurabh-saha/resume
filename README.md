@@ -86,6 +86,47 @@ drifts out of date as you edit.
 Switching to a profile that somehow has no documents creates a `Master` for it
 rather than leaving the previous profile's resume on screen.
 
+## Sharing
+
+**Share link** in the sidebar mints an unguessable token and gives you a
+read-only page at `/r/<token>`:
+
+```
+/r/k7m2x9qp4n                  the resume, view count, and comments
+/r/k7m2x9qp4n?mode=resume      the sheet alone — no bar, no comments
+```
+
+It is not enumerable, not listed, and carries `noindex, nofollow`. **New link**
+rotates the token and **Revoke** clears it; either stops every link already sent
+out, immediately.
+
+The page reuses the editor's own stylesheet, so it renders exactly as the PDF
+does — its read-only rules already hide the block controls, adders and page
+guides, so nothing has to be stripped. **Download PDF** opens the print dialog,
+the same path as the editor's Download.
+
+Each load increments `profile.views`, shown on the page and in the share dialog.
+Bot and preview traffic counts, so read it as traffic rather than readers.
+
+### Comments
+
+Anyone with the link can leave a name and a comment, and it appears at once —
+there is no approval step. You delete what you do not want, from the share
+dialog. Deletion is soft, like everything else here.
+
+Names and bodies are escaped on render; a comment containing markup shows as
+text rather than running.
+
+```
+POST   /api/profiles/{id}/share      mint, or {rotate:true} for a new token
+DELETE /api/profiles/{id}/share      revoke
+GET    /api/profiles/{id}/comments   all live comments, for the owner
+DELETE /api/comments/{id}            soft delete one
+GET    /r/{token}                    the public page (?mode=resume for bare)
+GET    /api/public/{token}           the same thing as JSON
+POST   /api/public/{token}/comments  leave one {name, body}
+```
+
 ## Deleting
 
 **Nothing is ever removed.** `server.py` contains no `DELETE FROM` at all.
